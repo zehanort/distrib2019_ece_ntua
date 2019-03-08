@@ -3,7 +3,7 @@ import transaction
 import wallet
 
 class Node:
-	def __init__(self, node_id, address):
+	def __init__(self, address, node_id=None):
 		self.ring = []
 
 		self.node_id = node_id

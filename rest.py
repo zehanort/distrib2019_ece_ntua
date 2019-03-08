@@ -12,7 +12,6 @@ import wallet
 
 app = Flask(__name__)
 CORS(app)
-blockchain = Blockchain()
 
 #.......................................................................................
 
@@ -25,7 +24,7 @@ def get_transactions():
     response = {'transactions': transactions}
     return jsonify(response), 200
 
-# run it once fore every node
+# run it once for every node
 
 if __name__ == '__main__':
     from argparse import ArgumentParser
@@ -44,6 +43,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
     address = args.address
     port = args.address
+    full_address = address + ':' + port
 
     # set global variables
     cfg.DIFFICULTY = args.difficulty
@@ -51,7 +51,9 @@ if __name__ == '__main__':
 
     if cfg.is_bootstrap(address + ':' + port):
         cfg.NODES = args.nodes
-        # bootstrap node serves as frontend, to
+        node = Node(full_address, 0)
+        # bootstrap node serves as frontend, too
         app.run(host='0.0.0.0', port=port)
     else:
+        node = Node(full_address)
         app.run(host=address, port=port)
