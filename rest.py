@@ -51,5 +51,7 @@ if __name__ == '__main__':
 
     if cfg.is_bootstrap(address + ':' + port):
         cfg.NODES = args.nodes
-
-    app.run(host=args.address, port=args.port)
+        # bootstrap node serves as frontend, to
+        app.run(host='0.0.0.0', port=port)
+    else:
+        app.run(host=address, port=port)
