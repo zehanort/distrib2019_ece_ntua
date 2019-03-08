@@ -42,8 +42,14 @@ if __name__ == '__main__':
     
     # parse command line arguments
     args = parser.parse_args()
-    nodes = args.nodes
+    address = args.address
+    port = args.address
+
+    # set global variables
     cfg.DIFFICULTY = args.difficulty
     cfg.CAPACITY = args.capacity
+
+    if cfg.is_bootstrap(address + ':' + port):
+        cfg.NODES = args.nodes
 
     app.run(host=args.address, port=args.port)
