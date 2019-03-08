@@ -13,11 +13,10 @@ import requests
 from flask import Flask, jsonify, request, render_template
 
 class Transaction(object):
-    def __init__(self, inputs, sender_address, recipient_address, amount):
-        self.sender_address = sender_address
-        self.recipient_address = recipient_address
-        self.amount = amount
-        self.inputs = inputs
+    def __init__(self, **data):
+        # args: inputs, sender_address, recipient_address, amount
+        for key, value in data.items():
+            setattr(self, key, value)
         
         self.signature = None
         

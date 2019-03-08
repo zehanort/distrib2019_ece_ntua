@@ -2,11 +2,11 @@ import blockchain
 import datetime
 
 class Block(object): 
-	def __init__(self, index, previous_hash, transactions):
-		self.index = index
+	def __init__(self, **data):
+		# args: index, previous_hash, transactions
 		self.timestamp = str(datetime.datetime.now())
-		self.previous_hash = previous_hash
-		self.transactions = transactions
+		for key, value in data.items():
+            setattr(self, key, value)
 
 		self.nonce = None
 		self.current_hash = None
@@ -35,9 +35,7 @@ class GenesisBlock(Block):
 	A class for the first block of the blockchain
 	"""
 	def __init__(self, genesis_transaction):
-		super(GenesisBlock, self).__init__()
-
+		super(GenesisBlock, self).__init__(index=0)
 		self.nonce = 0
 		self.previous_hash = 1
-
 		self.transactions = [genesis_transaction]

@@ -13,7 +13,6 @@ class Node:
 		self.address = address
 		self.wallet = Wallet()
 
-		self.curr_transactions = []
 		self.transaction_pool = []
 		self.utxo = {}
 
@@ -25,7 +24,10 @@ class Node:
 
 	def bootstrap_init(self):
 		genesis_transaction = Transaction(
-			[], 0, self.wallet.address, 100*NUMBER_OF_NODES
+			inputs=[],
+			sender_address=0,
+			recipient_address=self.wallet.address,
+			amount=100*NUMBER_OF_NODES
 		)
 		_, genesis_utxo = genesis_transaction.utxo
 		utxo.update(genesis_utxo)
@@ -48,7 +50,11 @@ class Node:
 	def mine_block(self):
 		index = self.last_block.index + 1
 		previous_hash = self.last_block.current_hash
-		new_block = Block(index, previous_hash, self.transactions)
+		new_block = Block(
+			index=index,
+			previous_hash=previous_hash,
+			transactions=self.transaction_pool[:CAPACITY]
+		)
 
 		nonce = 0
 		while True:
@@ -80,7 +86,12 @@ class Node:
 	def create_transaction(self, receiver, amount):
 		#remember to broadcast it
 
-		t = Transaction(inputs, self.wallet.address, receiver, amount)
+		t = Transaction(
+			inputs=inputs,
+			sender_address=self.wallet.address,
+			recipient_address=receiver,
+			amount=amount
+		)
 		t.signature = self.wallet.sign_transaction(t.to_dict())
 		self.validate_transaction(t)
 		self.broadcast_transaction(t)
@@ -130,11 +141,11 @@ class Node:
 		if not self.validate_transaction(transaction):
 			return
 
-		self.curr_transactions.append(transaction)
-		if len(self.curr_transactions) == CAPACITY:
+		self.transaction_pool.append(transaction)
+		if len(self.transaction_pool) == CAPACITY:
 			mined_block = self.mine_block()
 			self.last_block = mined_block
-			self.transactions = []
+			self.transaction_pool = []
 
 			self.blockchain.append(mined_block)
 
