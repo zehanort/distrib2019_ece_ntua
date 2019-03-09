@@ -44,18 +44,15 @@ class Transaction(object):
         change = sum(i.amount for i in inputs) - self.amount
         
         sender_utxo = TransactionOuput(self.transaction_id, self.sender_address, change)
-        sender_utxo_id = sender_utxo.id
-
         recipient_utxo = TransactionOuput(self.transaction_id, self.recipient_address, self.amount)
-        recipient_utxo_id = recipient_utxo.id        
 
         return {
-            sender_utxo_id    : sender_utxo,
-            recipient_utxo_id : recipient_utxo
+            sender_utxo.id    : sender_utxo,
+            recipient_utxo.id : recipient_utxo
         }
 
-    def hash(self, as_hex=True):
-        transaction_data = json.dumps(self.to_dict(True)).encode('utf8')
+    def hash(self, as_hex=True, include_signature=True):
+        transaction_data = json.dumps(self.to_dict(include_signature)).encode('utf8')
         transaction_hash = SHA.new(transaction_data)
 
         if as_hex:

@@ -130,7 +130,7 @@ class Node:
 		### step 1: validate signature
 		public_key = RSA.importKey(binascii.unhexlify(sender_address))
 		verifier = PKCS1_v1_5.new(public_key)
-		transaction_hash = incoming_transaction.hash(as_hex=False)
+		transaction_hash = incoming_transaction.hash(as_hex=False, include_signature=False)
 
 		if not verifier.verify(transaction_hash, binascii.unhexlify(signature)):
 			return False
@@ -139,7 +139,7 @@ class Node:
 
 		balance = 0 
 		for i in inputs:
-			if (not i in self.utxo) or (self.utxo[i].recipient_address != sender_address):
+			if not i in self.utxo or self.utxo[i].recipient_address != sender_address:
 				return False
 			else:
 				balance += self.utxo[i].amount
