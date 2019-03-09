@@ -1,22 +1,24 @@
-import requests
 from flask import Flask, jsonify, request, render_template
 from flask_cors import CORS
 
 import cfg
-import block
 import node
-import transaction
 import wallet
-
-### JUST A BASIC EXAMPLE OF A REST API WITH FLASK
+import transaction
+import block
 
 app = Flask(__name__)
 CORS(app)
 
-#.......................................................................................
+### ROUTES FOR ALL NBC NETWORK NODES ###
+
+# last step if initialization for all nodes
+@app.route(cfg.GET_RING_AND_BC, methods=['POST'])
+def get_ring_and_bc():
+    node.blockchain = request.form['blockchain']
+    node.ring = request.form['ring']
 
 # get all transactions in the blockchain
-
 @app.route('/transactions/get', methods=['GET'])
 def get_transactions():
     transactions = blockchain.transactions
@@ -42,18 +44,34 @@ if __name__ == '__main__':
     # parse command line arguments
     args = parser.parse_args()
     address = args.address
-    port = args.address
-    full_address = address + ':' + port
+    port = args.port
+    full_address = address + ':' + str(port)
 
     # set global variables
     cfg.DIFFICULTY = args.difficulty
     cfg.CAPACITY = args.capacity
 
-    if cfg.is_bootstrap(address + ':' + port):
+    if cfg.is_bootstrap(address + ':' + str(port)):
         cfg.NODES = args.nodes
         node = Node(full_address, 0)
+        
+        ### ROUTES EXCLUSIVE TO BOOTSTRAP NODE ###
+
+        # give ids to all other nodes
+        @app.route(cfg.GET_ID, methods=['POST'])
+        def assign_id_to_node():
+            ip_address = request.host
+            wallet_address = request.form['wallet_address']
+            response = node.register_node_to_ring(ip_address, wallet_address)
+            return jsonify(response), 200
+
+        @app.route(cfg.GET_RING_AND_BC, methods=['GET'])
+        def broadcast_ring_and_bc():
+
+
         # bootstrap node serves as frontend, too
         app.run(host='0.0.0.0', port=port)
+
     else:
         node = Node(full_address)
         app.run(host=address, port=port)

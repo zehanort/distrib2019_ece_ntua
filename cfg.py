@@ -1,3 +1,5 @@
+import requests
+
 BOOTSTRAP_ADDRESS = '192.168.0.2:5000'
 
 # DIFFICULTY and CAPACITY will be set at runtime
@@ -9,3 +11,8 @@ NODES = None
 
 def is_bootstrap(address):
     return address == BOOTSTRAP_ADDRESS
+
+# routes
+
+GET_ID = '/init/id/get'
+GET_RING_AND_BC = '/init/ring/get'

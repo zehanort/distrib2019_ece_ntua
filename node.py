@@ -1,3 +1,4 @@
+from cfg import *
 import block
 import transaction
 import wallet
@@ -19,27 +20,47 @@ class Node:
 		# Am I the bootstrap node?
 		if is_bootstrap(address):
 			self.bootstrap_init()
+		else:
+			self.node_init()
 
 	#  Node Methods
 
 	def bootstrap_init(self):
+		from itertools import count
+		self.node_ids = count(start=1)
+
 		genesis_transaction = Transaction(
 			inputs=[],
 			sender_address=0,
 			recipient_address=self.wallet.address,
-			amount=100*NUMBER_OF_NODES
+			amount=100*NODES
 		)
 		_, genesis_utxo = genesis_transaction.utxo
 		utxo.update(genesis_utxo)
 
 		genesis_block = GenesisBlock(genesis_transaction)
 		self.blockchain.append(genesis_block)
-		self.ring = [(self.node_id, address, self.wallet.address)]
+		# node_id is the index of the node in ring list
+		self.ring = [(address, self.wallet.address)]
 
-	def register_node_to_ring():
+	def node_init(self):
+		# request my id from bootstrap
+		data = {'wallet_address': self.wallet.address}
+		r = requests.post(BOOTSTRAP_ADDRESS + GET_ID, data=data)
+		if r.status_code == 200:
+			self.node_id = r.json()
+
+	def register_node_to_ring(self, full_address, wallet_address):
 		#add this node to the ring, only the bootstrap node can add a node to the ring after
 		#checking his wallet and ip:port address
-		#bottstrap node informs all other nodes and gives the request node an id and 100 NBCs
+		#bootstrap node informs all other nodes and gives the request node an id and 100 NBCs
+
+		for i, (full_addr, wallet_addr) in enumerate(self.ring):
+			if full_addr == full_address or wallet_addr == wallet_address:
+				return i
+		
+		self.ring.append((full_address, wallet_address))
+		return next(node_ids)
 
 	# Block Methods
 
