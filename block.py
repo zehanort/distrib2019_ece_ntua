@@ -1,4 +1,5 @@
-import blockchain
+import json
+import SHA
 import datetime
 
 class Block(object): 

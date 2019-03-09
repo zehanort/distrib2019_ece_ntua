@@ -1,7 +1,8 @@
-from cfg import *
-import block
-import transaction
-import wallet
+import cfg
+
+from block import *
+from transaction import *
+from wallet import *
 
 class Node:
 	def __init__(self, address, node_id=None):
@@ -18,7 +19,7 @@ class Node:
 		self.utxo = {}
 
 		# Am I the bootstrap node?
-		if is_bootstrap(address):
+		if cfg.is_bootstrap(address):
 			self.bootstrap_init()
 		else:
 			self.node_init()
@@ -46,7 +47,7 @@ class Node:
 	def node_init(self):
 		# request my id from bootstrap
 		data = {'wallet_address': self.wallet.address}
-		r = requests.post(BOOTSTRAP_ADDRESS + GET_ID, data=data)
+		r = requests.post(cfg.BOOTSTRAP_ADDRESS + cfg.GET_ID, data=data)
 		if r.status_code == 200:
 			self.node_id = r.json()
 
@@ -74,7 +75,7 @@ class Node:
 		new_block = Block(
 			index=index,
 			previous_hash=previous_hash,
-			transactions=self.transaction_pool[:CAPACITY]
+			transactions=self.transaction_pool[:cfg.CAPACITY]
 		)
 
 		nonce = 0
@@ -82,7 +83,7 @@ class Node:
 			new_block.nonce = nonce
 			new_block_hash = new_block.hash()
 
-			if bin(int(new_block_hash, 16)).startswith('0b' + '0' * MINING_DIFFICULTY):
+			if bin(int(new_block_hash, 16)).startswith('0b' + '0' * cfg.DIFFICULTY):
 				return new_block
 
 			nonce += 1
@@ -94,7 +95,7 @@ class Node:
 		block_hash = incoming_block.hash()
 
 		if not ((block_hash == current_hash) and 
-			   (bin(int(current_hash, 16)).startswith('0b' + '0' * MINING_DIFFICULTY))):
+			   (bin(int(current_hash, 16)).startswith('0b' + '0' * cfg.DIFFICULTY))):
 			return False
 
 		if not (previous_hash == self.last_block.current_hash):
@@ -163,7 +164,7 @@ class Node:
 			return
 
 		self.transaction_pool.append(transaction)
-		if len(self.transaction_pool) == CAPACITY:
+		if len(self.transaction_pool) == cfg.CAPACITY:
 			mined_block = self.mine_block()
 			self.last_block = mined_block
 			self.transaction_pool = []

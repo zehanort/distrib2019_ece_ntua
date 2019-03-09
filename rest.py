@@ -2,10 +2,10 @@ from flask import Flask, jsonify, request, render_template
 from flask_cors import CORS
 
 import cfg
-import node
-import wallet
-import transaction
-import block
+from node import *
+from wallet import *
+from block import *
+from transaction import *
 
 app = Flask(__name__)
 CORS(app)
