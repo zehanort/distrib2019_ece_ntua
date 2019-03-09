@@ -130,9 +130,7 @@ class Node:
 		### step 1: validate signature
 		public_key = RSA.importKey(binascii.unhexlify(sender_address))
 		verifier = PKCS1_v1_5.new(public_key)
-
-		transaction_data = json.dumps(incoming_transaction.to_dict()).encode('utf8')
-		transaction_hash = SHA.new(transaction_data)
+		transaction_hash = incoming_transaction.hash(to_hex=False)
 
 		if not verifier.verify(transaction_hash, binascii.unhexlify(signature)):
 			return False

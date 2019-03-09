@@ -54,11 +54,14 @@ class Transaction(object):
             recipient_utxo_id : recipient_utxo
         }
 
-    def hash(self):
+    def hash(self, as_hex=True):
         transaction_data = json.dumps(self.to_dict(True)).encode('utf8')
         transaction_hash = SHA.new(transaction_data)
 
-        return transaction_hash.hexdigest()
+        if as_hex:
+            return transaction_hash.hexdigest()
+        else:
+            return transaction_hash
     
 class TransactionOuput(Transaction):
     """Transaction output class"""
