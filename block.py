@@ -12,13 +12,13 @@ class Block(object):
 		self.current_hash = None
 		
 	def to_dict(self):
-		d = OrderedDict({
-			'index' : self.index, 
-			'timestamp' : self.timestamp,
-			'previous_hash' : self.previous_hash,
-			'transactions' : [t.to_dict() for t in self.transactions],
-			'nonce' : self.nonce
-		})
+		d = OrderedDict([
+			('index', self.index), 
+			('timestamp', self.timestamp),
+			('previous_hash', self.previous_hash),
+			('transactions', [t.to_dict() for t in self.transactions]),
+			('nonce', self.nonce)
+		])
 
 		return d
 

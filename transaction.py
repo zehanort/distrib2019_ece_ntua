@@ -28,12 +28,12 @@ class Transaction(object):
         return False
 
     def to_dict(self, include_signature=False):
-        d = OrderedDict({
-            'sender_address' : sender_address,
-            'recipient_address' : recipient_address,
-            'amount' : amount,
-            'inputs' : inputs
-        })
+        d = OrderedDict([
+            ('sender_address', sender_address),
+            ('recipient_address', recipient_address),
+            ('amount', amount),
+            ('inputs', inputs)
+        ])
 
         if include_signature:
             d['signature'] = self.signature
@@ -72,9 +72,9 @@ class TransactionOuput(Transaction):
         self.id = self.hash()
 
     def to_dict(self):
-        d = OrderedDict({
-            'parent_transaction_id': self.parent_transaction_id,
-            'recipient_address': self.recipient_address,
-            'amount': self.amount
-        })
+        d = OrderedDict([
+            ('parent_transaction_id', self.parent_transaction_id),
+            ('recipient_address', self.recipient_address),
+            ('amount', self.amount)
+        ])
         return d
