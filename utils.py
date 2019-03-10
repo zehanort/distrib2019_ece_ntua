@@ -52,8 +52,8 @@ class Utilizable(object):
 
 			if not isinstance(obj, str) and hasattr(type(obj), '__iter__'):
 				return [recurse(o) for o in obj]
-			return obj
 
+			return obj
 
 		if append is None:
 			append = []
