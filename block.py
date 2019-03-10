@@ -1,33 +1,21 @@
-import json
 import SHA
 import datetime
+from utils import dict_attributes, Hashable
 
-class Block(object): 
+@dict_attributes('index', 'timestamp', 'previous_hash', 'transactions', 'nonce')
+class Block(Hashable):
 	def __init__(self, **data):
 		# args: index, previous_hash, transactions
 		self.timestamp = str(datetime.datetime.now())
-		for key, value in data.items():
-            setattr(self, key, value)
-
+		self.__dict__.update(data)
 		self.nonce = None
 		self.current_hash = None
 		
-	def to_dict(self):
-		d = OrderedDict([
-			('index', self.index), 
-			('timestamp', self.timestamp),
-			('previous_hash', self.previous_hash),
-			('transactions', [t.to_dict() for t in self.transactions]),
-			('nonce', self.nonce)
-		])
+	def hash(self, set_own=True):
+		block_hash = super().hash()
 
-		return d
-
-	def hash():
-		block_data = json.dumps(self.to_dict()).encode('utf8')
-		block_hash = SHA.new(transaction_data).hexdigest()
-
-		self.current_hash = block_hash
+		if set_own:
+			self.current_hash = block_hash
 
 		return self.current_hash
 
