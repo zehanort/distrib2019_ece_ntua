@@ -24,7 +24,7 @@ class Transaction(Utilizable):
         """
         Returns tuple of dictionaries (sender change, receiver amount)
         """
-        change = sum(i.amount for i in inputs) - self.amount
+        change = sum(i.amount for i in self.inputs) - self.amount
         
         sender_utxo = TransactionOuput(self.transaction_id, self.sender_address, change)
         recipient_utxo = TransactionOuput(self.transaction_id, self.recipient_address, self.amount)
@@ -33,9 +33,10 @@ class Transaction(Utilizable):
             sender_utxo.id    : sender_utxo,
             recipient_utxo.id : recipient_utxo
         }
-    
-@dict_attributes('parent_transaction_id', 'recipient_address', 'amount', 'signature')
-class TransactionOuput(Transaction):
+
+# signature!?!?!?
+@dict_attributes('parent_transaction_id', 'recipient_address', 'amount')
+class TransactionOuput(Utilizable):
     """Transaction output class"""
 
     def __init__(self, parent_transaction_id, recipient_address, amount):

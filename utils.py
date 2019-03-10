@@ -19,8 +19,7 @@ class Utilizable(object):
 	'''
 		Instances of classes that inherit
 		from Utilizable can be recursively
-		dict-serialized and/or recursively
-		JSON-serialized.
+		{dict,JSON}-serialized.
 
 		Instances of classes that inherit
 		from Utilizable can be hashed based
@@ -42,18 +41,12 @@ class Utilizable(object):
 					 registered with @dict_attributes
 					 to result
 		'''
-		def recurse(obj):
+		def helper(key):
+			obj = getattr(self, key)
 			if isinstance(obj, Utilizable):
 				return obj.to_dict()
-
-			# CODE STINK ALERT: breaks if obj is bytestring
-			# 					or other funky iterable.
-			# 					Probably OK though...
-
-			if not isinstance(obj, str) and hasattr(type(obj), '__iter__'):
-				return [recurse(o) for o in obj]
-			return obj
-
+			else:
+				return obj
 
 		if append is None:
 			append = []
@@ -63,14 +56,13 @@ class Utilizable(object):
 			append = list(append)
 
 		keys = list(type(self)._dict_attributes) + append
-		values = (recurse(getattr(self, a)) for a in keys)
+		values = (helper(a) for a in keys)
 		return OrderedDict(zip(keys, values))
 
 	def json(self, append=None, **kwargs):
-		return json.dumps(self.to_dict(append), **kwargs).encode('utf8')
+		return json.dumps(self.to_dict(append=append), **kwargs).encode('utf8')
 
-
-	def hash(self, as_hex=True, append=None):
+	def hash(self, as_hex=True, **kwargs):
 		'''
 			Generate SHA256 hash of python object
 
@@ -79,9 +71,33 @@ class Utilizable(object):
 					 True:  return hexdigest of hash
 
 		'''
-		obj_hash = SHA.new(self.json(append))
+		obj_hash = SHA.new(self.json(**kwargs))
 
 		if as_hex:
 			return obj_hash.hexdigest()
 
 		return obj_hash
+
+class UtilizableList(list, Utilizable):
+	def __getitem__(self, key):
+		item = list.__getitem__(self, key)
+		if isinstance(key, slice):
+			return UtilizableList(item)
+		return item
+	def __add__(self, other):
+		return UtilizableList(list.__add__(self,other))
+	def __mul__(self, other):
+		return UtilizableList(list.__mul__(self,other))
+
+	def to_dict(self, **kwargs):
+		return [obj.to_dict(**kwargs) for obj in self]
+
+	def json(self, pointwise=True, **kwargs):
+		if not pointwise:
+			return super().json(**kwargs)
+		return [obj.json(**kwargs) for obj in self]
+
+	def hash(self, pointwise=True, **kwargs):
+		if not pointwise:
+			return super().hash(pointwise=False, **kwargs)
+		return [obj.hash(**kwargs) for obj in self]

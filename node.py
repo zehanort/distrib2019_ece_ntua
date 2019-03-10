@@ -3,19 +3,20 @@ import cfg
 from block import *
 from transaction import *
 from wallet import *
+from utils import *
 
 class Node:
 	def __init__(self, address, node_id=None):
 		self.ring = []
 
 		self.node_id = node_id
-		self.blockchain = []
+		self.blockchain = UtilizableList()
 		self.last_block = None
 
 		self.address = address
 		self.wallet = Wallet()
 
-		self.transaction_pool = []
+		self.transaction_pool = UtilizableList()
 		self.utxo = {}
 
 		# Am I the bootstrap node?
@@ -114,7 +115,8 @@ class Node:
 			recipient_address=receiver,
 			amount=amount
 		)
-		t.signature = self.wallet.sign_transaction(t.to_dict())
+		
+		self.wallet.sign_transaction(t)
 		self.validate_transaction(t)
 		self.broadcast_transaction(t)
 
@@ -174,11 +176,8 @@ class Node:
 	# Wallet Methods
 
 	def wallet_balance(self):
-		balance = 0
-		for utxo in self.utxo.values():
-			if utxo.recipient_address == self.wallet.address:
-				balance += utxo.amount
-		return balance
+		return sum(utxo.amount for utxo in self.utxo.values()
+					if utxo.recipient_address == self.wallet.address)
 
 	# Consensus Methods
 

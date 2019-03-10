@@ -1,4 +1,3 @@
-import SHA
 import datetime
 from utils import *
 
@@ -11,8 +10,8 @@ class Block(Utilizable):
 		self.nonce = None
 		self.current_hash = None
 		
-	def hash(self, set_own=True):
-		block_hash = super().hash()
+	def hash(self, set_own=True, **kwargs):
+		block_hash = super().hash(**kwargs)
 
 		if set_own:
 			self.current_hash = block_hash
@@ -27,4 +26,4 @@ class GenesisBlock(Block):
 		super(GenesisBlock, self).__init__(index=0)
 		self.nonce = 0
 		self.previous_hash = 1
-		self.transactions = [genesis_transaction]
+		self.transactions = UtilizableList([genesis_transaction])

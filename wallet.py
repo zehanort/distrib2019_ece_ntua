@@ -18,8 +18,8 @@ class Wallet:
 	def __init__(self):
 		rand_gen = Crypto.Random.new().read
 		self._private_key = RSA.generate(1024, rand_gen)
-
 		self.public_key = self._private_key.publickey()
+		self._signer = PKCS1_v1_5.new(self._private_key)
 
 	@property
 	def address(self):
@@ -28,10 +28,9 @@ class Wallet:
 		"""
 		return binascii.hexlify(self._public_key.exportKey(format='DER')).decode('ascii')
    
-    def sign_transaction(self, transaction):
-        """
-        Sign transaction with private key
-        """
-        signature_hash = transaction.hash(as_hex=False)
-
-        return binascii.hexlify(self._signer(signature_hash)).decode('ascii')
+	def sign_transaction(self, transaction):
+		"""
+		Sign transaction with private key
+		"""
+		signature_hash = transaction.hash(as_hex=False)
+		transaction.signature = binascii.hexlify(self._signer.sign(signature_hash)).decode('ascii')
