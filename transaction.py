@@ -4,7 +4,6 @@ import Crypto.Random
 from Crypto.Hash import SHA
 from Crypto.PublicKey import RSA
 from Crypto.Signature import PKCS1_v1_5
-from Hashable import *
 from utils import dict_attributes, Hashable
 
 @dict_attributes('sender_address', 'recipient_address', 'amount', 'inputs')
