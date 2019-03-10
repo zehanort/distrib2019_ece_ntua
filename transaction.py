@@ -17,7 +17,7 @@ class Transaction(object):
         
         self.signature = None
         
-        self.transaction_id = self.hash()
+        self.transaction_id = self.hash(include_signature=False)
 
     def __eq__(self, other):
         if isinstance(other, Transaction):
@@ -26,10 +26,10 @@ class Transaction(object):
 
     def to_dict(self, include_signature=False):
         d = OrderedDict([
-            ('sender_address', sender_address),
-            ('recipient_address', recipient_address),
-            ('amount', amount),
-            ('inputs', inputs)
+            ('sender_address', self.sender_address),
+            ('recipient_address', self.recipient_address),
+            ('amount', self.amount),
+            ('inputs', self.inputs)
         ])
 
         if include_signature:
