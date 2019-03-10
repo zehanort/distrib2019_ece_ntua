@@ -1,9 +1,9 @@
 import SHA
 import datetime
-from utils import dict_attributes, Hashable
+from utils import *
 
 @dict_attributes('index', 'timestamp', 'previous_hash', 'transactions', 'nonce')
-class Block(Hashable):
+class Block(Dictable, JSONable, Hashable):
 	def __init__(self, **data):
 		# args: index, previous_hash, transactions
 		self.timestamp = str(datetime.datetime.now())

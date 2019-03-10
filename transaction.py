@@ -4,10 +4,10 @@ import Crypto.Random
 from Crypto.Hash import SHA
 from Crypto.PublicKey import RSA
 from Crypto.Signature import PKCS1_v1_5
-from utils import dict_attributes, Hashable
+from utils import *
 
 @dict_attributes('sender_address', 'recipient_address', 'amount', 'inputs')
-class Transaction(Hashable):
+class Transaction(Dictable, JSONable, Hashable):
     def __init__(self, **data):
         # args: inputs, sender_address, recipient_address, amount
         self.__dict__.update(data)        
