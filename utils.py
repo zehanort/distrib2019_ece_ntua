@@ -38,6 +38,11 @@ class Dictable(object):
 		def recurse(obj):
 			if isinstance(obj, Dictable):
 				return obj.to_dict()
+
+			# CODE STINK ALERT: breaks if obj is bytestring
+			# 					or other funky iterable.
+			# 					Probably OK though...
+
 			if not isinstance(obj, str) and hasattr(type(obj), '__iter__'):
 				return [recurse(o) for o in obj]
 			return obj
