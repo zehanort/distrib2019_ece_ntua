@@ -188,5 +188,3 @@ class Node:
 
 	def resolve_conflicts(self):
 		#resolve correct chain
-
-
