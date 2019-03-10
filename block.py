@@ -3,7 +3,7 @@ import datetime
 from utils import *
 
 @dict_attributes('index', 'timestamp', 'previous_hash', 'transactions', 'nonce')
-class Block(Dictable, JSONable, Hashable):
+class Block(Utilizable):
 	def __init__(self, **data):
 		# args: index, previous_hash, transactions
 		self.timestamp = str(datetime.datetime.now())

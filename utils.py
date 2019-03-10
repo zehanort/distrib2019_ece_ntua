@@ -12,14 +12,20 @@ def dict_attributes(*attributes):
 	def wrap(cls):
 		cls._dict_attributes = attributes
 		return cls
-		
+
 	return wrap
 
-class Dictable(object):
+class Utilizable(object):
 	'''
 		Instances of classes that inherit
-		from Dictable can be recursively
-		dict-serialized.
+		from Utilizable can be recursively
+		dict-serialized and/or recursively
+		JSON-serialized.
+
+		Instances of classes that inherit
+		from Utilizable can be hashed based
+		on their JSON serialization as defined
+		by their .json() method.
 		
 		Use dict_attributes decorator to
 		specify attributes to be included
@@ -37,7 +43,7 @@ class Dictable(object):
 					 to result
 		'''
 		def recurse(obj):
-			if isinstance(obj, Dictable):
+			if isinstance(obj, Utilizable):
 				return obj.to_dict()
 
 			# CODE STINK ALERT: breaks if obj is bytestring
@@ -60,29 +66,9 @@ class Dictable(object):
 		values = (recurse(getattr(self, a)) for a in keys)
 		return OrderedDict(zip(keys, values))
 
-class JSONable(object):
-	'''
-		Instances of classes that inherit
-		from JSONable can be recursively
-		JSON-serialized.
-	'''
-
-	def to_dict(self, append=None):
-		raise NotImplementedError
-
 	def json(self, append=None, **kwargs):
 		return json.dumps(self.to_dict(append), **kwargs).encode('utf8')
 
-class Hashable(object):
-	'''
-		Instances of classes that inherit
-		from Hashable can be hashed based
-		on their JSON serialization as defined
-		by their .json() method.
-	'''
-
-	def json(self, append=None, **kwargs):
-		raise NotImplementedError
 
 	def hash(self, as_hex=True, append=None):
 		'''

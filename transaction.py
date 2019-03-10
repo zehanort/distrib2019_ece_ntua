@@ -7,7 +7,7 @@ from Crypto.Signature import PKCS1_v1_5
 from utils import *
 
 @dict_attributes('sender_address', 'recipient_address', 'amount', 'inputs')
-class Transaction(Dictable, JSONable, Hashable):
+class Transaction(Utilizable):
     def __init__(self, **data):
         # args: inputs, sender_address, recipient_address, amount
         self.__dict__.update(data)        
