@@ -49,7 +49,7 @@ class Node:
 	def node_init(self):
 		# request my id from bootstrap
 		data = {'wallet_address' : self.wallet.address}
-		r = requests.post(cfg.BOOTSTRAP_ADDRESS + cfg.GET_ID, data=data)
+		r = requests.post('http://' + cfg.BOOTSTRAP_ADDRESS + cfg.GET_ID, data=data)
 
 		if r.status_code == 200:
 			received_data = r.json()
@@ -76,9 +76,9 @@ class Node:
 		responses = []
 		for (addr, _) in self.ring:
 			if method == 'POST':
-				responses.append(requests.post(addr, data=message))
+				responses.append(requests.post('http://' + addr, data=message))
 			elif method == 'GET':
-				responses.append(requests.get(addr))
+				responses.append(requests.get('http://' + addr))
 			else:
 				raise NotImplementedError('Method {} not supported'.format(method))
 		return responses
