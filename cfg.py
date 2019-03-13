@@ -15,4 +15,5 @@ def is_bootstrap(address):
 # routes
 
 GET_ID = '/init/id/get'
-GET_RING_AND_BC = '/init/ring/get'
+GET_RING = '/init/ring/get'
+

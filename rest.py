@@ -18,13 +18,13 @@ def get_ring_and_bc():
     node.blockchain = request.form['blockchain']
     node.ring = request.form['ring']
 
-# get all transactions in the blockchain
-@app.route('/transactions/get', methods=['GET'])
-def get_transactions():
-    transactions = blockchain.transactions
+# # get all transactions in the blockchain
+# @app.route('/transactions/get', methods=['GET'])
+# def get_transactions():
+#     transactions = blockchain.transactions
 
-    response = {'transactions': transactions}
-    return jsonify(response), 200
+#     response = {'transactions': transactions}
+#     return jsonify(response), 200
 
 # run it once for every node
 
@@ -53,25 +53,34 @@ if __name__ == '__main__':
 
     if cfg.is_bootstrap(address + ':' + str(port)):
         cfg.NODES = args.nodes
-        node = Node(full_address, 0)
+        bootstrap = Node(full_address, 0)
         
         ### ROUTES EXCLUSIVE TO BOOTSTRAP NODE ###
+        def broadcast_ring_and_bc():
 
         # give ids to all other nodes
         @app.route(cfg.GET_ID, methods=['POST'])
         def assign_id_to_node():
             ip_address = request.host
             wallet_address = request.form['wallet_address']
-            response = node.register_node_to_ring(ip_address, wallet_address)
+
+            response = {
+                'id' : bootstrap.register_node_to_ring(ip_address, wallet_address),
+                'blockchain' : bootstrap.blockchain.json(pointwise=False)
+            }
+
+            if response['id'] == cfg.NODES:
+                data = { 'ring' : self.ring }
+                bootstrap.broadcast(data, cfg.GET_RING, 'POST')
+
             return jsonify(response), 200
-
-        @app.route(cfg.GET_RING_AND_BC, methods=['GET'])
-        def broadcast_ring_and_bc():
-
 
         # bootstrap node serves as frontend, too
         app.run(host='0.0.0.0', port=port)
 
     else:
         node = Node(full_address)
+
+        @app.route(cfg.)
+
         app.run(host=address, port=port)

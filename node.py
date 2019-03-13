@@ -7,10 +7,11 @@ from utils import *
 
 class Node:
 	def __init__(self, address, node_id=None):
+		# ring: list of (full_address, wallet_address)
 		self.ring = []
 
 		self.node_id = node_id
-		self.blockchain = UtilizableList()
+		self.blockchain = None
 		self.last_block = None
 
 		self.address = address
@@ -47,10 +48,17 @@ class Node:
 
 	def node_init(self):
 		# request my id from bootstrap
-		data = {'wallet_address': self.wallet.address}
+		data = {'wallet_address' : self.wallet.address}
 		r = requests.post(cfg.BOOTSTRAP_ADDRESS + cfg.GET_ID, data=data)
+
 		if r.status_code == 200:
-			self.node_id = r.json()
+			received_data = r.json()
+			self.node_id = received_data['id']
+			self.blockchain = UtilizableList(
+				[Block(block_dict) for block_dict in received_data['blockchain']]
+			)
+		else:
+			raise RuntimeError('Could not get ID from bootstrap node')
 
 	def register_node_to_ring(self, full_address, wallet_address):
 		#add this node to the ring, only the bootstrap node can add a node to the ring after
@@ -63,6 +71,17 @@ class Node:
 		
 		self.ring.append((full_address, wallet_address))
 		return next(node_ids)
+
+	def broadcast(self, message, dest_url, method):
+		responses = []
+		for (addr, _) in self.ring:
+			if method == 'POST':
+				responses.append(requests.post(addr, data=message))
+			elif method == 'GET':
+				responses.append(requests.get(addr))
+			else:
+				raise NotImplementedError('Method {} not supported'.format(method))
+		return responses
 
 	# Block Methods
 
