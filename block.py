@@ -1,5 +1,6 @@
 import datetime
 from utils import *
+from transaction import *
 
 @dict_attributes('index', 'timestamp', 'previous_hash', 'transactions', 'nonce')
 class Block(Utilizable):
@@ -7,6 +8,7 @@ class Block(Utilizable):
 		# args: index, previous_hash, transactions
 		self.timestamp = str(datetime.datetime.now())
 		self.__dict__.update(data)
+		self.transactions = UtilizableList([Transaction(**t) for t in self.transactions])
 		self.nonce = None
 		self.current_hash = None
 		

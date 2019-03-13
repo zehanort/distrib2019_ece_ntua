@@ -1,5 +1,5 @@
 import cfg
-
+import requests
 from block import *
 from transaction import *
 from wallet import *
@@ -36,10 +36,10 @@ class Node:
 			inputs=[],
 			sender_address=0,
 			recipient_address=self.wallet.address,
-			amount=100*NODES
+			amount=100*cfg.NODES
 		)
-		_, genesis_utxo = genesis_transaction.utxo
-		utxo.update(genesis_utxo)
+		genesis_utxo = genesis_transaction.utxo
+		self.utxo.update(genesis_utxo)
 
 		genesis_block = GenesisBlock(genesis_transaction)
 		self.blockchain.append(genesis_block)
@@ -48,15 +48,23 @@ class Node:
 
 	def node_init(self):
 		# request my id from bootstrap
-		data = {'wallet_address' : self.wallet.address}
+		data = {
+			'inet_address'	 : self.address,
+			'wallet_address' : self.wallet.address
+			}
 		r = requests.post('http://' + cfg.BOOTSTRAP_ADDRESS + cfg.GET_ID, data=data)
 
 		if r.status_code == 200:
 			received_data = r.json()
+			
 			self.node_id = received_data['id']
 			self.blockchain = UtilizableList(
-				[Block(block_dict) for block_dict in received_data['blockchain']]
+				[Block(**block_dict) for block_dict in received_data['blockchain']]
 			)
+
+			if 'ring' in received_data:
+				self.ring = [tuple(i) for i in received_data['ring']]
+				print('Ring:', self.ring)
 		else:
 			raise RuntimeError('Could not get ID from bootstrap node')
 
@@ -72,9 +80,11 @@ class Node:
 		self.ring.append((full_address, wallet_address))
 		return next(node_ids)
 
-	def broadcast(self, message, dest_url, method):
+	def broadcast(self, message, dest_url, method, blacklist=[]):
 		responses = []
 		for (addr, _) in self.ring:
+			if addr in blacklist or addr == self.address:
+				continue
 			if method == 'POST':
 				responses.append(requests.post('http://' + addr, data=message))
 			elif method == 'GET':
@@ -86,8 +96,6 @@ class Node:
 	# Block Methods
 
 	# def create_new_block(self):
-
-	def broadcast_block():
 
 	def mine_block(self):
 		index = self.last_block.index + 1
@@ -138,8 +146,6 @@ class Node:
 		self.wallet.sign_transaction(t)
 		self.validate_transaction(t)
 		self.broadcast_transaction(t)
-
-	def broadcast_transaction():
 
 	def validate_transaction(self, incoming_transaction):
 		sender_address = incoming_transaction.sender_address
@@ -204,6 +210,3 @@ class Node:
 		if not isinstance(chain[0], GenesisBlock):
 			return False
 		return all(self.validate_block(b) for b in chain[1:])
-
-	def resolve_conflicts(self):
-		#resolve correct chain
