@@ -12,20 +12,6 @@ CORS(app)
 
 ### ROUTES FOR ALL NBC NETWORK NODES ###
 
-# last step if initialization for all nodes
-@app.route(cfg.GET_RING_AND_BC, methods=['POST'])
-def get_ring_and_bc():
-    node.blockchain = request.form['blockchain']
-    node.ring = request.form['ring']
-
-# # get all transactions in the blockchain
-# @app.route('/transactions/get', methods=['GET'])
-# def get_transactions():
-#     transactions = blockchain.transactions
-
-#     response = {'transactions': transactions}
-#     return jsonify(response), 200
-
 # run it once for every node
 
 if __name__ == '__main__':
@@ -56,27 +42,36 @@ if __name__ == '__main__':
         bootstrap = Node(full_address, 0)
         
         ### ROUTES EXCLUSIVE TO BOOTSTRAP NODE ###
-        def broadcast_ring_and_bc():
 
         # give ids to all other nodes
         @app.route(cfg.GET_ID, methods=['POST'])
         def assign_id_to_node():
-            ip_address = request.host
+            inet_address = request.form['inet_address']
+            print('------->', inet_address)
             wallet_address = request.form['wallet_address']
 
             response = {
-                'id' : bootstrap.register_node_to_ring(ip_address, wallet_address),
-                'blockchain' : bootstrap.blockchain.json(pointwise=False)
+                'id' : bootstrap.register_node_to_ring(inet_address, wallet_address),
+                'blockchain' : bootstrap.blockchain.to_dict()
             }
 
-            if response['id'] == cfg.NODES:
-                data = { 'ring' : self.ring }
-                bootstrap.broadcast(data, cfg.GET_RING, 'POST')
+            print("------------------->", bootstrap.blockchain.to_dict())
+
+            if response['id'] == cfg.NODES-1:
+                # the last one receives the ring as well
+                response['ring'] = bootstrap.ring
+                # need different handling for broadcasting
+                data = dict(bootstrap.ring)
+                bootstrap.broadcast(data, cfg.GET_RING, 'POST', blacklist=[inet_address])
+                print('INITIALIZATION COMPLETED SUCCESSFULLY!')
+                print('ring is ->', data)
+
+            print('served {} (gave it id {})'.format(inet_address, response['id']))
 
             return jsonify(response), 200
 
         # bootstrap node serves as frontend, too
-        app.run(host='0.0.0.0', port=port)
+        app.run(host='0.0.0.0', port=port, threaded=True)
 
     else:
         node = Node(full_address)
@@ -86,4 +81,4 @@ if __name__ == '__main__':
             node.ring = request.form['ring']
             return 'node {} received ring'.format(node.node_id), 200
 
-        app.run(host=address, port=port)
+        app.run(host=address, port=port, threaded=True)
