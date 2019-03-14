@@ -78,7 +78,7 @@ class Node:
 				return i
 		
 		self.ring.append((full_address, wallet_address))
-		return next(node_ids)
+		return next(self.node_ids)
 
 	def broadcast(self, message, dest_url, method, blacklist=[]):
 		responses = []
@@ -86,9 +86,9 @@ class Node:
 			if addr in blacklist or addr == self.address:
 				continue
 			if method == 'POST':
-				responses.append(requests.post('http://' + addr, data=message))
+				responses.append(requests.post('http://' + addr + dest_url, data=message))
 			elif method == 'GET':
-				responses.append(requests.get('http://' + addr))
+				responses.append(requests.get('http://' + addr + dest_url))
 			else:
 				raise NotImplementedError('Method {} not supported'.format(method))
 		return responses

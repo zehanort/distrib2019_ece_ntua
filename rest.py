@@ -72,7 +72,7 @@ if __name__ == '__main__':
             return jsonify(response), 200
 
         # bootstrap node serves as frontend, too
-        app.run(host='0.0.0.0', port=port, threaded=True)
+        app.run(host='0.0.0.0', port=port, threaded=True, debug=True)
 
     else:
         node = Node(full_address)
@@ -82,4 +82,4 @@ if __name__ == '__main__':
             node.ring = request.form['ring']
             return 'node {} received ring'.format(node.node_id), 200
 
-        app.run(host=address, port=port, threaded=True)
+        app.run(host=address, port=port, threaded=True, debug=True)
