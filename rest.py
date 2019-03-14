@@ -2,6 +2,7 @@ from flask import Flask, jsonify, request, render_template
 from flask_cors import CORS
 
 import cfg
+import requests
 from node import *
 from wallet import *
 from block import *

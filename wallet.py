@@ -26,7 +26,7 @@ class Wallet:
 		"""
 		Returns address of wallet in ASCII form (as attribute)
 		"""
-		return binascii.hexlify(self._public_key.exportKey(format='DER')).decode('ascii')
+		return binascii.hexlify(self.public_key.exportKey(format='DER')).decode('ascii')
    
 	def sign_transaction(self, transaction):
 		"""

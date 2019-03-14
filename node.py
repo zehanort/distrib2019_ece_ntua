@@ -42,9 +42,9 @@ class Node:
 		self.utxo.update(genesis_utxo)
 
 		genesis_block = GenesisBlock(genesis_transaction)
-		self.blockchain.append(genesis_block)
+		self.blockchain = UtilizableList([genesis_block])
 		# node_id is the index of the node in ring list
-		self.ring = [(address, self.wallet.address)]
+		self.ring = [(self.address, self.wallet.address)]
 
 	def node_init(self):
 		# request my id from bootstrap
