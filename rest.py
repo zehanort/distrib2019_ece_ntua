@@ -8,6 +8,10 @@ from wallet import *
 from block import *
 from transaction import *
 
+from threading import Lock
+
+assign_id_lock = Lock()
+
 app = Flask(__name__)
 CORS(app)
 
@@ -51,10 +55,11 @@ if __name__ == '__main__':
             print('------->', inet_address)
             wallet_address = request.form['wallet_address']
 
-            response = {
-                'id' : bootstrap.register_node_to_ring(inet_address, wallet_address),
-                'blockchain' : bootstrap.blockchain.to_dict()
-            }
+            with assign_id_lock:
+                response = {
+                    'id' : bootstrap.register_node_to_ring(inet_address, wallet_address),
+                    'blockchain' : bootstrap.blockchain.to_dict()
+                }
 
             print("------------------->", bootstrap.blockchain.to_dict())
 
