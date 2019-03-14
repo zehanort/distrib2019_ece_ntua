@@ -79,7 +79,7 @@ if __name__ == '__main__':
 
         @app.route(cfg.GET_RING, methods=['POST'])
         def get_ring():
-            node.ring = request.form['ring']
+            node.ring = [(k, v) for k, v in request.form.items()]
             return 'node {} received ring'.format(node.node_id), 200
 
         app.run(host=address, port=port, threaded=True)
