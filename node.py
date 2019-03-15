@@ -63,7 +63,7 @@ class Node:
             
             self.node_id = received_data['id']
             self.blockchain = UtilizableList(
-                [Block(**block_dict) for block_dict in received_data['blockchain']]
+                [GenesisBlock(**received_data['blockchain'][0])]
             )
 
             print(self.blockchain.to_dict())
