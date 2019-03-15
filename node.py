@@ -66,6 +66,8 @@ class Node:
                 [Block(**block_dict) for block_dict in received_data['blockchain']]
             )
 
+            print(self.blockchain.to_dict())
+
             if 'ring' in received_data:
                 self.ring = [tuple(i) for i in received_data['ring']]
                 print('Ring:', self.ring)
