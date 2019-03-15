@@ -175,7 +175,8 @@ class Node:
         transaction_hash = incoming_transaction.hash(as_hex=False)
 
         print('\t[] VERIFIER ATTRIBUTES')
-        print('\t[] hash:', transaction_hash)
+        print('\t[] transaction dict:', incoming_transaction.to_dict())
+        print('\t[] hash:', transaction_hash.hexdigest())
         print('\t[] signature:', signature)
         if not verifier.verify(transaction_hash, binascii.unhexlify(signature)):
             print('GAMITHIKE TO VERIFY!!!!!!!!!!!!!!!!!')
@@ -188,12 +189,13 @@ class Node:
         balance = 0 
         for i in inputs:
             if not i in self.utxo[sender_address]:
-            # if not i in self.utxo or self.utxo[i].recipient_address != sender_address:
+                print('eskasa edw')
                 return False
             else:
                 balance += i.amount
 
         if balance < amount:
+            print('eskasa edw omws')
             return False
 
         # all inputs and the amount are valid, remove them from local utxo dict

@@ -10,7 +10,7 @@ from utils import *
 class Transaction(Utilizable):
     def __init__(self, **data):
         # args: inputs, sender_address, recipient_address, amount
-        self.__dict__.update(data)        
+        self.__dict__.update(data)
         self.transaction_id = self.hash()
 
     def __eq__(self, other):
@@ -25,8 +25,17 @@ class Transaction(Utilizable):
         """
         change = sum(i.amount for i in self.inputs) - self.amount
         
-        sender_utxo = TransactionOuput(self.transaction_id, self.sender_address, change)
-        recipient_utxo = TransactionOuput(self.transaction_id, self.recipient_address, self.amount)
+        sender_utxo = TransactionOuput(
+            parent_transaction_id=self.transaction_id,
+            recipient_address=self.sender_address,
+            amount=change
+        )
+        
+        recipient_utxo = TransactionOuput(
+            parent_transaction_id=self.transaction_id,
+            recipient_address=self.recipient_address,
+            amount=self.amount
+        )
 
         return sender_utxo, recipient_utxo
 
@@ -35,8 +44,6 @@ class Transaction(Utilizable):
 class TransactionOuput(Utilizable):
     """Transaction output class"""
 
-    def __init__(self, parent_transaction_id, recipient_address, amount):
-        self.parent_transaction_id = parent_transaction_id
-        self.recipient_address = recipient_address
-        self.amount = amount
+    def __init__(self, **data):
+        self.__dict__.update(data)
         self.id = self.hash()

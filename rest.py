@@ -7,6 +7,7 @@ from node import *
 from wallet import *
 from block import *
 from transaction import *
+from utils import *
 
 from threading import Thread, Lock
 
@@ -23,6 +24,9 @@ node = None
 @app.route(cfg.NEW_TRANSACTION, methods=['POST'])
 def get_new_transaction():
     new_transaction = Transaction(**request.get_json())
+    new_transaction.inputs = UtilizableList(
+        [TransactionOuput(**i) for i in new_transaction.inputs]
+    )
     # assign handling of incoming transaction to a new thread
     transaction_thread = Thread(
         target=node.add_transaction,
