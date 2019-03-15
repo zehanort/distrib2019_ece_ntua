@@ -60,7 +60,7 @@ class Utilizable(object):
 		return OrderedDict(zip(keys, values))
 
 	def json(self, append=None, **kwargs):
-		return json.dumps(self.to_dict(append=append), **kwargs).encode('utf8')
+		return json.dumps(self.to_dict(append=append), **kwargs)
 
 	def hash(self, as_hex=True, **kwargs):
 		'''
@@ -71,7 +71,7 @@ class Utilizable(object):
 					 True:  return hexdigest of hash
 
 		'''
-		obj_hash = SHA.new(self.json(**kwargs))
+		obj_hash = SHA.new(self.json(**kwargs).encode('utf8'))
 
 		if as_hex:
 			return obj_hash.hexdigest()

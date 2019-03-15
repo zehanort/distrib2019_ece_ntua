@@ -8,16 +8,32 @@ from wallet import *
 from block import *
 from transaction import *
 
-from threading import Lock
+from threading import Thread, Lock
 
 assign_id_lock = Lock()
 
 app = Flask(__name__)
 CORS(app)
 
+# node will be defined later (bootstrap or simple)
+node = None
+
 ### ROUTES FOR ALL NBC NETWORK NODES ###
 
-# run it once for every node
+@app.route(cfg.NEW_TRANSACTION, methods=['POST'])
+def get_new_transaction():
+    new_transaction = Transaction(**request.get_json())
+    # assign handling of incoming transaction to a new thread
+    transaction_thread = Thread(
+        target=node.add_transaction,
+        args=(new_transaction,)
+    )
+    transaction_thread.start()
+    return 'new transaction received\n', 200
+
+@app.route(cfg.WALLET_BALANCE, methods=['GET'])
+def report_wallet_balance():
+    return jsonify(node.wallet_balance()), 200
 
 if __name__ == '__main__':
     from argparse import ArgumentParser
@@ -44,7 +60,7 @@ if __name__ == '__main__':
 
     if cfg.is_bootstrap(address + ':' + str(port)):
         cfg.NODES = args.nodes
-        bootstrap = Node(full_address, 0)
+        node = Node(full_address, 0)
         
         ### ROUTES EXCLUSIVE TO BOOTSTRAP NODE ###
 
@@ -52,29 +68,40 @@ if __name__ == '__main__':
         @app.route(cfg.GET_ID, methods=['POST'])
         def assign_id_to_node():
             inet_address = request.form['inet_address']
-            print('------->', inet_address)
             wallet_address = request.form['wallet_address']
 
             with assign_id_lock:
                 response = {
-                    'id' : bootstrap.register_node_to_ring(inet_address, wallet_address),
-                    'blockchain' : bootstrap.blockchain.to_dict()
+                    'id' : node.register_node_to_ring(inet_address, wallet_address),
+                    'blockchain' : node.blockchain.to_dict()
                 }
-
-            print("------------------->", bootstrap.blockchain.to_dict())
 
             if response['id'] == cfg.NODES-1:
                 # the last one receives the ring as well
-                response['ring'] = bootstrap.ring
+                response['ring'] = node.ring
                 # need different handling for broadcasting
-                data = dict(bootstrap.ring)
-                bootstrap.broadcast(data, cfg.GET_RING, 'POST', blacklist=[inet_address])
-                print('INITIALIZATION COMPLETED SUCCESSFULLY!')
-                print('ring is ->', data)
+                data = { 'ring' : node.ring }
+                node.broadcast(data, cfg.GET_RING, 'POST', blacklist=[inet_address])
+                cfg.CAN_DISTRIBUTE_WEALTH = True
 
             print('served {} (gave it id {})'.format(inet_address, response['id']))
 
             return jsonify(response), 200
+
+        # send 100 NBC to every node after network initialization
+        @app.route(cfg.DISTRIBUTE_WEALTH, methods=['GET'])
+        def distribute_wealth():
+            if not cfg.CAN_DISTRIBUTE_WEALTH:
+                return 'Distribution of wealth has been done already!\n', 200
+
+            else:
+                for inet_addr, wallet_addr in node.ring:
+                    if cfg.is_bootstrap(inet_addr):
+                        continue
+                    node.create_transaction(wallet_addr, 100)
+
+                cfg.CAN_DISTRIBUTE_WEALTH = False
+                return 'Distribution of wealth completed successfully!\n', 200
 
         # bootstrap node serves as frontend, too
         app.run(host='0.0.0.0', port=port, threaded=True)
@@ -84,7 +111,7 @@ if __name__ == '__main__':
 
         @app.route(cfg.GET_RING, methods=['POST'])
         def get_ring():
-            node.ring = [(k, v) for k, v in request.form.items()]
+            node.ring = request.get_json()['ring']
             print('Ring:', node.ring)
             return 'node {} received ring'.format(node.node_id), 200
 

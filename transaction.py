@@ -11,7 +11,6 @@ class Transaction(Utilizable):
     def __init__(self, **data):
         # args: inputs, sender_address, recipient_address, amount
         self.__dict__.update(data)        
-        self.signature = None
         self.transaction_id = self.hash()
 
     def __eq__(self, other):
@@ -29,10 +28,7 @@ class Transaction(Utilizable):
         sender_utxo = TransactionOuput(self.transaction_id, self.sender_address, change)
         recipient_utxo = TransactionOuput(self.transaction_id, self.recipient_address, self.amount)
 
-        return {
-            sender_utxo.id    : sender_utxo,
-            recipient_utxo.id : recipient_utxo
-        }
+        return sender_utxo, recipient_utxo
 
 # signature!?!?!?
 @dict_attributes('parent_transaction_id', 'recipient_address', 'amount')
