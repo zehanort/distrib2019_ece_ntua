@@ -77,13 +77,13 @@ if __name__ == '__main__':
             with assign_id_lock:
                 response = {
                     'id' : node.register_node_to_ring(inet_address, wallet_address),
-                    'blockchain' : node.blockchain.to_dict(pointwise=False)
+                    'blockchain' : node.blockchain.to_dict()
                 }
 
             if response['id'] == cfg.NODES-1:
                 # the last one receives the ring as well
                 response['ring'] = node.ring
-                
+
                 # need different handling for broadcasting
                 data = { 'ring' : node.ring }
                 node.broadcast(data, cfg.GET_RING, 'POST', blacklist=[inet_address])
