@@ -6,6 +6,7 @@ from wallet import *
 from utils import *
 
 from collections import defaultdict
+from copy import deepcopy
 
 from threading import Lock
 
@@ -125,18 +126,16 @@ class Node:
 
             nonce += 1
 
-    def validate_block(self, incoming_block):
-        previous_hash = incoming_block.previous_hash
+    def validate_block(self, incoming_block, previous_hash):
         current_hash = incoming_block.current_hash
-
-        block_hash = incoming_block.hash()
+        block_hash = incoming_block.hash(set_own=False)
 
         if not ((block_hash == current_hash) and 
                (bin(int(current_hash, 16)).startswith('0b' + '0' * cfg.DIFFICULTY))):
             return False
 
-        if not (previous_hash == self.last_block.current_hash):
-            self.resolve_conflicts()
+        if not (previous_hash == incoming_block.previous_hash):
+            return False
 
         return True
 
@@ -231,24 +230,49 @@ class Node:
         if not isinstance(blockchain[0], GenesisBlock):
             return False
 
-        tmp_utxo = defaultdict(list)
+        if not all(self.validate_block(block, blockchain[i-1].current_hash) 
+                                       for i, block in enumerate(blockchain[1:])):
+            return False
+
+        backup_utxo = deepcopy(self.utxo)
+        self.utxo = defaultdict(list)
 
         genesis_block = blockchain[0]
         genesis_transaction = genesis_block.transactions[0]
 
-        tmp_utxo[genesis_transaction.recipient_address].append(genesis_transaction.utxo[1])
+        self.utxo[genesis_transaction.recipient_address].append(genesis_transaction.utxo[1])
 
         for block in blockchain[1:]:
-            curr_utxo = self.validate_block(block)
-
-            if not curr_utxo:
-                return False
-
-            sender_utxo, recipient_utxo = curr_utxo
-            
-            tmp_utxo[sender_utxo.recipient_address].append(sender_utxo)
-            tmp_utxo[recipient_utxo.recipient_address].append(recipient_utxo)
-
-        self.utxo = tmp_utxo
+            for t in block.transactions:
+                if not self.validate_transaction(t):
+                    self.utxo = backup_utxo
+                    return False
 
         return True
+
+    def resolve_conflicts(self):
+
+        ### step 1: ask for blockchain length
+        responses = self.broadcast(None, cfg.BLOCKCHAIN_LENGTH, 'GET')
+        length = len(self.blockchain)
+        dominant_node = None
+
+        for r in responses:
+            if r.json() > length:
+                length = r.json()
+                dominant_node = r.url
+
+        if dominant_node is None:
+            return False
+
+        ### step 2: send list of blockchain hashes to dominant node
+        dominant_node = dominant_node.rstrip(cfg.BLOCKCHAIN_LENGTH)
+        blockchain_hashes = [b.current_hash for b in self.blockchain]
+        r = requests.post(dominant_node, json={ 'hashes' : blockchain_hashes })
+
+        ### step 3: update local blockchain
+        new_blocks = UtilizableList([Block(**b) for b in r.json()])
+        cut = new_blocks[0].index
+        self.blockchain[cut:] = new_blocks
+
+        ### 
