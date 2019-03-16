@@ -25,5 +25,6 @@ NEW_BLOCK = '/block/new'
 
 WALLET_BALANCE = '/wallet/balance'
 
+BLOCKCHAIN = '/blockchain'
 BLOCKCHAIN_LENGTH = '/blockchain/length'
 BLOCKCHAIN_HASHES = '/blockchain/hashes'

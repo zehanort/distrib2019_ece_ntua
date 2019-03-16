@@ -47,12 +47,16 @@ def get_new_block():
 
     return 'New block received\n', 200
 
+@app.route(cfg.BLOCKCHAIN, methods=['GET'])
+def return_blockchain():
+    return jsonify(node.blockchain.to_dict()), 200
+
 @app.route(cfg.BLOCKCHAIN_LENGTH, methods=['GET'])
 def report_blockchain_length():
     return jsonify(len(node.blockchain)), 200
 
 @app.route(cfg.BLOCKCHAIN_HASHES, methods=['POST'])
-def report_blockchain():
+def report_blockchain_diffs():
     hashes = request.get_json()
     return jsonify(node.blockchain_diff(hashes)), 200
 
