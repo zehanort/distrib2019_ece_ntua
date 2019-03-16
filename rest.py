@@ -37,6 +37,15 @@ def get_new_transaction():
 @app.route(cfg.NEW_BLOCK, methods=['POST'])
 def get_new_block():
     new_block = Block(**request.get_json())
+    
+    # append new_block to node block_queue
+    node.block_queue.put(new_block)
+    
+    # spawn a thread to resolve block_queue after mining_lock is released
+    block_queue_resolver = Thread(target=node.resolve_block_queue)
+    block_queue_resolver.start()
+
+    return 'New block received\n', 200
 
 @app.route(cfg.BLOCKCHAIN_LENGTH, methods=['GET'])
 def report_blockchain_length():

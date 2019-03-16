@@ -9,8 +9,10 @@ from collections import defaultdict
 from copy import deepcopy
 
 from threading import Lock
+from queue import Queue
 
 validate_transaction_lock = Lock()
+mining_lock = Lock()
 
 class Node:
     def __init__(self, address, node_id=None):
@@ -25,6 +27,7 @@ class Node:
         self.wallet = Wallet()
 
         self.transaction_pool = UtilizableList()
+        self.block_queue = Queue()
 
         # key: wallet address, value: list of utxo for key
         self.utxo = defaultdict(list)
@@ -106,26 +109,33 @@ class Node:
 
     # Block Methods
 
-    # def create_new_block(self):
-
     def mine_block(self):
-        index = self.last_block.index + 1
-        previous_hash = self.last_block.current_hash
-        new_block = Block(
-            index=index,
-            previous_hash=previous_hash,
-            transactions=self.transaction_pool[:cfg.CAPACITY]
-        )
+        with mining_lock:
+            last_block = self.blockchain[-1]
+            index = last_block.index + 1
+            previous_hash = last_block.current_hash
+            transactions = self.transaction_pool[:cfg.CAPACITY]
 
-        nonce = 0
-        while True:
-            new_block.nonce = nonce
-            new_block_hash = new_block.hash()
+            new_block = Block(
+                index=index,
+                previous_hash=previous_hash,
+                transactions=transactions
+            )
 
-            if bin(int(new_block_hash, 16)).startswith('0b' + '0' * cfg.DIFFICULTY):
-                return new_block
+            nonce = 0
+            while True:
+                new_block.nonce = nonce
+                new_block_hash = new_block.hash()
 
-            nonce += 1
+                if bin(int(new_block_hash, 16)).startswith('0b' + '0' * cfg.DIFFICULTY):
+                    print('[FOUND NONCE!] ->', new_block.to_dict(append='current_hash'))
+                    break
+
+                nonce += 1
+
+        self.block_queue.put(new_block)
+        self.broadcast(new_block.to_dict(append='current_hash'), cfg.NEW_BLOCK, 'POST')
+        self.resolve_block_queue()
 
     def validate_block(self, incoming_block, previous_hash):
         current_hash = incoming_block.current_hash
@@ -139,6 +149,22 @@ class Node:
             return False
 
         return True
+
+    def resolve_block_queue(self):
+        with mining_lock:
+            while not self.block_queue.empty():
+                incoming_block = self.block_queue.get()
+
+                # is it the next block of our blockchain?
+                if incoming_block.previous_hash == self.blockchain[-1].current_hash:
+                    self.blockchain.append(incoming_block)
+                else:
+                    self.resolve_conflicts()
+
+                self.fix_transcation_pool()
+
+        if len(self.transaction_pool) >= cfg.CAPACITY:
+            self.mine_block()
 
     # Transaction Methods
 
@@ -210,15 +236,21 @@ class Node:
         if not self.validate_transaction(transaction):
             return
 
-        self.transaction_pool.append(transaction)
+        # self.transaction_pool.append(transaction)
+        # if len(self.transaction_pool) >= cfg.CAPACITY:
+        #     ### step 1: mine block
+        #     mined_block = self.mine_block()
+
+        #     ### step 2: did i recieve any block(s) while mining?
+        #     self.blockchain.append(mined_block)
+
+        #     self.broadcast_block(mined_block)
+
+        with add_transaction_lock:
+            self.transaction_pool.append(transaction)
+
         if len(self.transaction_pool) >= cfg.CAPACITY:
-            mined_block = self.mine_block()
-            self.last_block = mined_block
-            self.transaction_pool = []
-
-            self.blockchain.append(mined_block)
-
-            self.broadcast_block(mined_block)
+            self.mine_block()
 
     def calculate_utxo(self, blockchain):
         backup_utxo = deepcopy(self.utxo)
@@ -263,7 +295,6 @@ class Node:
         return self.blockchain[i:].to_dict(append='current_hash')
 
     def resolve_conflicts(self):
-
         ### step 1: ask for blockchain length
         responses = self.broadcast(None, cfg.BLOCKCHAIN_LENGTH, 'GET')
         length = len(self.blockchain)
@@ -295,7 +326,36 @@ class Node:
 
         ### step 5: calculate utxo and, if everything ok, update blockchain
         if self.calculate_utxo(tmp_blockchain):
+            # add transactions that would be purged by blockchain replacement
+            my_transactions = UtilizableList()
+            for b in self.blockchain[cut:]:
+                my_transactions += b.transactions
+
+            new_transactions = UtilizableList()
+            for b in new_blocks:
+                new_transactions += b.transactions
+
+            new_transactions = set(new_transactions)
+            diff = UtilizableList(
+                [t for t in my_transactions if t not in new_transactions]
+            )
+
+            with add_transaction_lock:
+                self.transaction_pool += diff
+
+            # replace blockchain
             self.blockchain = tmp_blockchain
             return True
 
         return False
+
+    def fix_transaction_pool(self):
+        blockchain_transactions = []
+        for b in self.blockchain:
+            blockchain_transactions += b.transactions
+        blockchain_transactions = set(blockchain_transactions)
+
+        with add_transaction_lock:
+            self.transaction_pool = [
+                t for t in self.transaction_pool if t not in blockchain_transactions
+            ]
