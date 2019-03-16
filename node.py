@@ -164,7 +164,7 @@ class Node:
         )
         
         self.wallet.sign_transaction(t)
-        self.validate_transaction(t)
+        self.add_transaction(t)
         self.broadcast(t.to_dict(append='signature'), cfg.NEW_TRANSACTION, 'POST')
 
     def validate_transaction(self, incoming_transaction):
@@ -211,7 +211,7 @@ class Node:
             return
 
         self.transaction_pool.append(transaction)
-        if len(self.transaction_pool) == cfg.CAPACITY:
+        if len(self.transaction_pool) >= cfg.CAPACITY:
             mined_block = self.mine_block()
             self.last_block = mined_block
             self.transaction_pool = []
@@ -260,7 +260,7 @@ class Node:
             if my_hash != other_hash:
                 break
 
-        return self.blockchain[i:]
+        return self.blockchain[i:].to_dict(append='current_hash')
 
     def resolve_conflicts(self):
 
@@ -299,5 +299,3 @@ class Node:
             return True
 
         return False
-
-

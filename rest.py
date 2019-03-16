@@ -24,12 +24,6 @@ node = None
 @app.route(cfg.NEW_TRANSACTION, methods=['POST'])
 def get_new_transaction():
     new_transaction = Transaction(**request.get_json())
-    # new_transaction.inputs = UtilizableList(
-    #     [TransactionOuput(**i) for i in new_transaction.inputs]
-    # )
-    # new_transaction.transaction_id = new_transaction.hash()
-
-    # print("NEW TRANSACTION", new_transaction.to_dict(), '\n\n')
 
     # assign handling of incoming transaction to a new thread
     transaction_thread = Thread(
@@ -37,7 +31,7 @@ def get_new_transaction():
         args=(new_transaction,)
     )
     transaction_thread.start()
-    # node.add_transaction(new_transaction)
+
     return 'New transaction received\n', 200
 
 @app.route(cfg.NEW_BLOCK, methods=['POST'])
