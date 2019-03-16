@@ -95,7 +95,7 @@ if __name__ == '__main__':
                 
                 cfg.CAN_DISTRIBUTE_WEALTH = True
 
-            print('served {} (gave it id {})'.format(inet_address, response['id']))
+            print('Served {} (gave it id {})'.format(inet_address, response['id']))
 
             return jsonify(response), 200
 
@@ -124,6 +124,6 @@ if __name__ == '__main__':
         def get_ring():
             node.ring = [tuple(n) for n in request.get_json()['ring']]
             # print('Ring:', node.ring)
-            return 'node {} received ring'.format(node.node_id), 200
+            return 'Node {} received ring'.format(node.node_id), 200
 
         app.run(host=address, port=port, threaded=True)

@@ -70,15 +70,10 @@ class Node:
                 [GenesisBlock.parse(received_data['genesis_block'])]
             )
 
-            # print(">>>", self.blockchain.to_dict(), type(self.blockchain[0]))
-
             self.validate_chain(self.blockchain)
-
-            # print(">>>", self.utxo)
 
             if 'ring' in received_data:
                 self.ring = [tuple(i) for i in received_data['ring']]
-                print('Ring:', self.ring)
         else:
             raise RuntimeError('Could not get ID from bootstrap node')
 
@@ -173,8 +168,6 @@ class Node:
         self.broadcast(t.to_dict(append='signature'), cfg.NEW_TRANSACTION, 'POST')
 
     def validate_transaction(self, incoming_transaction):
-        print(">>>>>>>> incoming_transaction hash", incoming_transaction.transaction_id)
-
         sender_address = incoming_transaction.sender_address
         recipient_address = incoming_transaction.recipient_address
         amount = incoming_transaction.amount
@@ -186,23 +179,13 @@ class Node:
         verifier = PKCS1_v1_5.new(public_key)
         transaction_hash = incoming_transaction.hash(as_hex=False)
 
-        # print('\t[] VERIFIER ATTRIBUTES')
-        # print('\t[] transaction dict:', incoming_transaction.to_dict())
-        # print('\t[] hash:', transaction_hash.hexdigest())
-        # print('\t[] signature:', signature)
         if not verifier.verify(transaction_hash, binascii.unhexlify(signature)):
-            # print('GAMITHIKE TO VERIFY!!!!!!!!!!!!!!!!!')
             return False
-        # else:
-        #     # print('ETREKSE TO VERIFY!!!!!!!!!!!!!!!!')
-        
+
         ### step 2: validate inputs
         with validate_transaction_lock:
             balance = 0 
             for i in inputs:
-                print("\t[SKATA]", i.to_dict(), self.utxo[sender_address])
-                print("\t", [j.to_dict() for j in self.utxo[sender_address]], '\n')
-
                 if not i in self.utxo[sender_address]:
                     print('eskasa edw')
                     return False
