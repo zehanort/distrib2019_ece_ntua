@@ -198,9 +198,9 @@ class Node:
         with validate_transaction_lock:
             balance = 0 
             for i in inputs:
-                print("\t[SKATA]", i, self.utxo[sender_address])
-                print("\t", [i.to_dict() for i in self.utxo[sender_address]])
-                
+                print("\t[SKATA]", i.to_dict(), self.utxo[sender_address])
+                print("\t", [j.to_dict() for j in self.utxo[sender_address]])
+
                 if not i in self.utxo[sender_address]:
                     print('eskasa edw')
                     return False
