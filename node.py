@@ -162,7 +162,7 @@ class Node:
 
                 # is it the next block of our blockchain?
                 if incoming_block.previous_hash == self.blockchain[-1].current_hash:
-                    print('>> New valid block has arrived')
+                    print('>> New valid block from queue', incoming_block.previous_hash)
                     self.blockchain.append(incoming_block)
                 else:
                     print('>> Error occcured: let\'s run resolve_conflicts')

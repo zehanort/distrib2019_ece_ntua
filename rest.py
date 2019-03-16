@@ -37,6 +37,8 @@ def get_new_transaction():
 @app.route(cfg.NEW_BLOCK, methods=['POST'])
 def get_new_block():
     new_block = Block(**request.get_json())
+
+    print('----> Received new block from network', new_block.current_hash)
     
     # append new_block to node block_queue
     node.block_queue.put(new_block)
