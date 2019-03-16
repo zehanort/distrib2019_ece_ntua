@@ -41,7 +41,7 @@ class Transaction(Utilizable):
 
 # signature!?!?!?
 @dict_attributes('parent_transaction_id', 'recipient_address', 'amount')
-class TransactionOuput(Utilizable):
+class TransactionOuput(Utilizable, Transaction):
     """Transaction output class"""
 
     def __init__(self, **data):
