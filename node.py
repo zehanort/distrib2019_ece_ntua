@@ -357,6 +357,6 @@ class Node:
         blockchain_transactions = set(blockchain_transactions)
 
         with add_transaction_lock:
-            self.transaction_pool = [
+            self.transaction_pool = UtilizableList([
                 t for t in self.transaction_pool if t not in blockchain_transactions
-            ]
+            ])
