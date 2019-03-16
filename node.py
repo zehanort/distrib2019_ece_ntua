@@ -112,7 +112,7 @@ class Node:
 
     def mine_block(self):
         with mining_lock:
-            print(">>>> I am in")
+            # print(">>>> I am in")
 
             last_block = self.blockchain[-1]
             index = last_block.index + 1
@@ -162,7 +162,7 @@ class Node:
 
                 # is it the next block of our blockchain?
                 if incoming_block.previous_hash == self.blockchain[-1].current_hash:
-                    print('>> New valid block from queue', incoming_block.previous_hash)
+                    print('>> New valid block from queue', incoming_block.current_hash)
                     self.blockchain.append(incoming_block)
                 else:
                     print('>> Error occcured: let\'s run resolve_conflicts')
@@ -257,7 +257,7 @@ class Node:
             self.transaction_pool.append(transaction)
 
         if len(self.transaction_pool) >= cfg.CAPACITY:
-            print('>>> I am gonnnnnaa mine')
+            # print('>>> I am gonnnnnaa mine')
             self.mine_block()
 
     def calculate_utxo(self, blockchain):
