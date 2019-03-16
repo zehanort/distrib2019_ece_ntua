@@ -7,6 +7,10 @@ from utils import *
 
 from collections import defaultdict
 
+from threading import Lock
+
+validate_transaction_lock = Lock()
+
 class Node:
     def __init__(self, address, node_id=None):
         # ring: list of (full_address, wallet_address)
@@ -191,25 +195,26 @@ class Node:
             print('ETREKSE TO VERIFY!!!!!!!!!!!!!!!!')
         
         ### step 2: validate inputs
-        balance = 0 
-        for i in inputs:
-            print("[SKATA]", i, self.utxo[sender_address])
-            if not i in self.utxo[sender_address]:
-                print('eskasa edw')
+        with validate_transaction_lock:
+            balance = 0 
+            for i in inputs:
+                print("[SKATA]", i, self.utxo[sender_address])
+                if not i in self.utxo[sender_address]:
+                    print('eskasa edw')
+                    return False
+                else:
+                    balance += i.amount
+
+            if balance < amount:
+                print('eskasa edw omws')
                 return False
-            else:
-                balance += i.amount
 
-        if balance < amount:
-            print('eskasa edw omws')
-            return False
+            # all inputs and the amount are valid, remove them from local utxo dict
+            self.utxo[sender_address] = [i for i in self.utxo[sender_address] if i not in inputs]
 
-        # all inputs and the amount are valid, remove them from local utxo dict
-        self.utxo[sender_address] = [i for i in self.utxo[sender_address] if i not in inputs]
-
-        ### step 3: calculate utxo
-        self.utxo[sender_address].append(incoming_transaction.utxo[0])
-        self.utxo[recipient_address].append(incoming_transaction.utxo[1])
+            ### step 3: calculate utxo
+            self.utxo[sender_address].append(incoming_transaction.utxo[0])
+            self.utxo[recipient_address].append(incoming_transaction.utxo[1])
 
         return True
 
