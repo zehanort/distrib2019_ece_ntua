@@ -191,8 +191,8 @@ class Node:
         )
         
         self.wallet.sign_transaction(t)
-        self.add_transaction(t)
         self.broadcast(t.to_dict(append='signature'), cfg.NEW_TRANSACTION, 'POST')
+        self.add_transaction(t)
 
     def validate_transaction(self, incoming_transaction):
         sender_address = incoming_transaction.sender_address
@@ -251,6 +251,7 @@ class Node:
             self.transaction_pool.append(transaction)
 
         if len(self.transaction_pool) >= cfg.CAPACITY:
+            print('>>> I am gonnnnnaa mine')
             self.mine_block()
 
     def calculate_utxo(self, blockchain):
