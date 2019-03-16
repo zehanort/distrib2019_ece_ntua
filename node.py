@@ -66,6 +66,7 @@ class Node:
                 [GenesisBlock.parse(received_data['genesis_block'])]
             )
 
+            print(type(self.blockchain[0]))
             print(self.blockchain.to_dict())
 
             if 'ring' in received_data:
