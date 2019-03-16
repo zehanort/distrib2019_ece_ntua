@@ -111,9 +111,6 @@ if __name__ == '__main__':
                         continue
                     node.create_transaction(wallet_addr, 100)
 
-                    from time import sleep
-                    sleep(5)
-
                 cfg.CAN_DISTRIBUTE_WEALTH = False
                 return 'Distribution of wealth completed successfully!\n', 200
 
