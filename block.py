@@ -32,8 +32,8 @@ class GenesisBlock(Block):
         self.transactions = UtilizableList([genesis_transaction])
 
     @classmethod
-    def parse(cls, **data):
-        obj = cls(data['genesis_transaction'])
+    def parse(cls, data):
+        obj = cls(data['transactions'][0])
         obj.index = data['index']
         obj.nonce = data['nonce']
         obj.timestamp = data['timestamp']
