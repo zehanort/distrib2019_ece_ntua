@@ -166,7 +166,7 @@ class Node:
                 else:
                     self.resolve_conflicts()
 
-                self.fix_transcation_pool()
+                self.fix_transaction_pool()
 
         if len(self.transaction_pool) >= cfg.CAPACITY:
             self.mine_block()
@@ -324,7 +324,7 @@ class Node:
         ### step 3: get correct chain
         new_blocks = UtilizableList([Block(**b) for b in r.json()])
         cut = new_blocks[0].index
-        tmp_blockchain = deepcopy(self.blockchain_hashes[:cut]) + new_blocks
+        tmp_blockchain = deepcopy(self.blockchain[:cut]) + new_blocks
 
         ### step 4: validate temp blockchain
         if not self.validate_chain(tmp_blockchain):
