@@ -41,9 +41,14 @@ class Transaction(Utilizable):
 
 # signature!?!?!?
 @dict_attributes('parent_transaction_id', 'recipient_address', 'amount')
-class TransactionOuput(Utilizable, Transaction):
+class TransactionOuput(Utilizable):
     """Transaction output class"""
 
     def __init__(self, **data):
         self.__dict__.update(data)
         self.id = self.hash()
+
+    def __eq__(self, other):
+        if isinstance(other, TransactionOuput):
+            return (self.id == other.id)
+        return False
