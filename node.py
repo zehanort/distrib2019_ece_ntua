@@ -132,7 +132,7 @@ class Node:
 
                 print('>>>', bin(int(new_block_hash, 16)), nonce)
 
-                if bin(int(new_block_hash, 16)).startswith('0b' + '0' * cfg.DIFFICULTY):
+                if bin(int(new_block_hash, 16)).startswith('0b' + '1' * cfg.DIFFICULTY):
                     print('[FOUND NONCE!] ->', new_block.to_dict(append='current_hash'))
                     break
 
