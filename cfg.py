@@ -21,6 +21,7 @@ GET_RING = '/init/ring/get'
 DISTRIBUTE_WEALTH = '/init/distribute/wealth'
 
 NEW_TRANSACTION = '/transaction/new'
+NEW_BLOCK = '/block/new'
 
 WALLET_BALANCE = '/wallet/balance'
 
