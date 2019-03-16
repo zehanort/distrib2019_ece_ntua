@@ -193,6 +193,7 @@ class Node:
         ### step 2: validate inputs
         balance = 0 
         for i in inputs:
+            print("[SKATA]", i, self.utxo[sender_address])
             if not i in self.utxo[sender_address]:
                 print('eskasa edw')
                 return False
