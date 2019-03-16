@@ -29,16 +29,16 @@ def get_new_transaction():
     )
     new_transaction.transaction_id = new_transaction.hash()
 
-    print("NEW TRANSACTION", new_transaction.to_dict(), '\n\n')
+    # print("NEW TRANSACTION", new_transaction.to_dict(), '\n\n')
 
     # assign handling of incoming transaction to a new thread
-    # transaction_thread = Thread(
-    #     target=node.add_transaction,
-    #     args=(new_transaction,)
-    # )
-    # transaction_thread.start()
-    node.add_transaction(new_transaction)
-    return 'new transaction received\n', 200
+    transaction_thread = Thread(
+        target=node.add_transaction,
+        args=(new_transaction,)
+    )
+    transaction_thread.start()
+    # node.add_transaction(new_transaction)
+    return 'New transaction received\n', 200
 
 @app.route(cfg.WALLET_BALANCE, methods=['GET'])
 def report_wallet_balance():
