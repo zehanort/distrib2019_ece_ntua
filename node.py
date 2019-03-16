@@ -70,11 +70,11 @@ class Node:
                 [GenesisBlock.parse(received_data['genesis_block'])]
             )
 
-            print(">>>", self.blockchain.to_dict(), type(self.blockchain[0]))
+            # print(">>>", self.blockchain.to_dict(), type(self.blockchain[0]))
 
             self.validate_chain(self.blockchain)
 
-            print(">>>", self.utxo)
+            # print(">>>", self.utxo)
 
             if 'ring' in received_data:
                 self.ring = [tuple(i) for i in received_data['ring']]
@@ -173,7 +173,7 @@ class Node:
         self.broadcast(t.to_dict(append='signature'), cfg.NEW_TRANSACTION, 'POST')
 
     def validate_transaction(self, incoming_transaction):
-        print(">>>>>>>>", incoming_transaction.transaction_id)
+        print(">>>>>>>> incoming_transaction hash", incoming_transaction.transaction_id)
 
         sender_address = incoming_transaction.sender_address
         recipient_address = incoming_transaction.recipient_address
@@ -201,7 +201,7 @@ class Node:
             balance = 0 
             for i in inputs:
                 print("\t[SKATA]", i.to_dict(), self.utxo[sender_address])
-                print("\t", [j.to_dict() for j in self.utxo[sender_address]])
+                print("\t", [j.to_dict() for j in self.utxo[sender_address]], '\n')
 
                 if not i in self.utxo[sender_address]:
                     print('eskasa edw')

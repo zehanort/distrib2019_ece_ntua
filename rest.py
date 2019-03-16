@@ -28,7 +28,7 @@ def get_new_transaction():
         [TransactionOuput(**i) for i in new_transaction.inputs]
     )
 
-    print("NEW TRANSACTION", new_transaction.to_dict())
+    print("NEW TRANSACTION", new_transaction.to_dict(), '\n\n')
 
     # assign handling of incoming transaction to a new thread
     # transaction_thread = Thread(
@@ -111,7 +111,7 @@ if __name__ == '__main__':
                     node.create_transaction(wallet_addr, 100)
 
                     from time import sleep
-                    # sleep(2)
+                    sleep(5)
 
                 cfg.CAN_DISTRIBUTE_WEALTH = False
                 return 'Distribution of wealth completed successfully!\n', 200
