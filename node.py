@@ -112,6 +112,8 @@ class Node:
 
     def mine_block(self):
         with mining_lock:
+            print(">>>> I am in")
+
             last_block = self.blockchain[-1]
             index = last_block.index + 1
             previous_hash = last_block.current_hash
@@ -127,6 +129,8 @@ class Node:
             while True:
                 new_block.nonce = nonce
                 new_block_hash = new_block.hash()
+
+                print('>>>', bin(int(new_block_hash, 16)), nonce)
 
                 if bin(int(new_block_hash, 16)).startswith('0b' + '0' * cfg.DIFFICULTY):
                     print('[FOUND NONCE!] ->', new_block.to_dict(append='current_hash'))
