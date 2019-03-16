@@ -27,6 +27,7 @@ def get_new_transaction():
     new_transaction.inputs = UtilizableList(
         [TransactionOuput(**i) for i in new_transaction.inputs]
     )
+    new_transaction.transaction_id = new_transaction.hash()
 
     print("NEW TRANSACTION", new_transaction.to_dict(), '\n\n')
 
