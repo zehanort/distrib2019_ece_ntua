@@ -2,7 +2,7 @@ import datetime
 from utils import *
 from transaction import *
 
-@dict_attributes('index', 'timestamp', 'current_hash', 'previous_hash', 'transactions', 'nonce')
+@dict_attributes('index', 'timestamp', 'previous_hash', 'transactions', 'nonce')
 class Block(Utilizable):
     def __init__(self, **data):
         # args: index, previous_hash, transactions
