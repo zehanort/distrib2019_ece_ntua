@@ -12,9 +12,9 @@ class Transaction(Utilizable):
         # args: inputs, sender_address, recipient_address, amount
         self.__dict__.update(data)
 
-        if not isinstance(self.inputs, UtilizableList):
-            print("I am here")
-            self.inputs = UtilizableList([TransactionOuput(**i) for i in self.inputs])
+        # if not isinstance(self.inputs, UtilizableList):
+        #     print("I am here")
+        #     self.inputs = UtilizableList([TransactionOuput(**i) for i in self.inputs])
 
         self.transaction_id = self.hash()
 
