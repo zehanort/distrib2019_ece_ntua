@@ -112,8 +112,9 @@ class Node:
 
     def mine_block(self):
         with mining_lock:
-            # print(">>>> I am in")
-
+            if not len(self.blockchain) >= cfg.CAPACITY:
+                return
+                
             last_block = self.blockchain[-1]
             index = last_block.index + 1
             previous_hash = last_block.current_hash
@@ -160,23 +161,24 @@ class Node:
             while not self.block_queue.empty():
                 incoming_block = self.block_queue.get()
 
-                print('>> Incoming_block hash from queue:',incoming_block.current_hash)
+                print('>> Incoming_block hash from queue:', incoming_block.current_hash, incoming_block.previous_hash)
                 # is it the next block of our blockchain?
 
                 print('\t -------', self.blockchain[-1].current_hash ,len(self.blockchain))
                 if incoming_block.previous_hash == self.blockchain[-1].current_hash:
                     print('\t', self.blockchain[-1].current_hash, len(self.blockchain), '-------')
 
-                    print('\t>> New valid block from queue')
+                    print('\t[**] New valid block from queue')
                     self.blockchain.append(incoming_block)
                 else:
-                    print('\t>> Error occcured: let\'s run resolve_conflicts')
+                    print('\t', self.blockchain[-1].current_hash, len(self.blockchain), '-------')
+
+                    print('\t[!!] Error occcured: let\'s run resolve_conflicts')
                     self.resolve_conflicts()
 
                 self.fix_transaction_pool()
 
-        if len(self.transaction_pool) >= cfg.CAPACITY:
-            self.mine_block()
+        self.mine_block()
 
     # Transaction Methods
 
@@ -261,9 +263,7 @@ class Node:
         with add_transaction_lock:
             self.transaction_pool.append(transaction)
 
-        if len(self.transaction_pool) >= cfg.CAPACITY:
-            # print('>>> I am gonnnnnaa mine')
-            self.mine_block()
+        self.mine_block()
 
     def calculate_utxo(self, blockchain):
         backup_utxo = deepcopy(self.utxo)
