@@ -34,7 +34,7 @@ class GenesisBlock(Block):
     @classmethod
     def parse(cls, data):
         print("parse data", data)
-        obj = cls(data['transactions'][0])
+        obj = cls(Transaction(**data['transactions'][0]))
         obj.index = data['index']
         obj.nonce = data['nonce']
         obj.timestamp = data['timestamp']
