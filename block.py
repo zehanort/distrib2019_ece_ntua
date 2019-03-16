@@ -2,7 +2,7 @@ import datetime
 from utils import *
 from transaction import *
 
-@dict_attributes('index', 'timestamp', 'previous_hash', 'transactions', 'nonce')
+@dict_attributes('index', 'timestamp', 'current_hash', 'previous_hash', 'transactions', 'nonce')
 class Block(Utilizable):
     def __init__(self, **data):
         # args: index, previous_hash, transactions
@@ -10,8 +10,6 @@ class Block(Utilizable):
         self.__dict__.update(data)
         if 'transactions' in data:
             self.transactions = UtilizableList([Transaction(**t) for t in self.transactions])
-        self.nonce = None
-        self.current_hash = None
         
     def hash(self, set_own=True, **kwargs):
         block_hash = super().hash(**kwargs)

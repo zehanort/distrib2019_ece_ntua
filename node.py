@@ -219,21 +219,7 @@ class Node:
 
             self.broadcast_block(mined_block)
 
-    # Wallet Methods
-
-    def wallet_balance(self):
-        return sum(my_utxo.amount for my_utxo in self.utxo[self.wallet.address])
-
-    # Consensus Methods
-
-    def validate_chain(self, blockchain):
-        if not isinstance(blockchain[0], GenesisBlock):
-            return False
-
-        if not all(self.validate_block(block, blockchain[i-1].current_hash) 
-                                       for i, block in enumerate(blockchain[1:])):
-            return False
-
+    def calculate_utxo(self, blockchain):
         backup_utxo = deepcopy(self.utxo)
         self.utxo = defaultdict(list)
 
@@ -250,6 +236,31 @@ class Node:
 
         return True
 
+    # Wallet Methods
+
+    def wallet_balance(self):
+        return sum(my_utxo.amount for my_utxo in self.utxo[self.wallet.address])
+
+    # Consensus Methods
+
+    def validate_chain(self, blockchain):
+        if not isinstance(blockchain[0], GenesisBlock):
+            return False
+
+        if not all(self.validate_block(block, blockchain[i-1].current_hash) 
+                                       for i, block in enumerate(blockchain[1:])):
+            return False
+
+        return True
+
+    def blockchain_diff(self, hashes):
+        my_hashes = [b.current_hash for b in self.blockchain]
+        for i, (my_hash, other_hash) in enumerate(zip(my_hashes, hashes)):
+            if my_hash != other_hash:
+                break
+
+        return self.blockchain[i:]
+
     def resolve_conflicts(self):
 
         ### step 1: ask for blockchain length
@@ -258,8 +269,10 @@ class Node:
         dominant_node = None
 
         for r in responses:
-            if r.json() > length:
-                length = r.json()
+            curr_length = r.json()
+
+            if curr_length > length:
+                length = curr_length
                 dominant_node = r.url
 
         if dominant_node is None:
@@ -268,11 +281,22 @@ class Node:
         ### step 2: send list of blockchain hashes to dominant node
         dominant_node = dominant_node.rstrip(cfg.BLOCKCHAIN_LENGTH)
         blockchain_hashes = [b.current_hash for b in self.blockchain]
-        r = requests.post(dominant_node, json={ 'hashes' : blockchain_hashes })
+        r = requests.post(dominant_node + cfg.BLOCKCHAIN_HASHES, json=blockchain_hashes)
 
-        ### step 3: update local blockchain
+        ### step 3: get correct chain
         new_blocks = UtilizableList([Block(**b) for b in r.json()])
         cut = new_blocks[0].index
-        self.blockchain[cut:] = new_blocks
+        tmp_blockchain = deepcopy(self.blockchain_hashes[:cut]) + new_blocks
 
-        ### 
+        ### step 4: validate temp blockchain
+        if not self.validate_chain(tmp_blockchain):
+            return False
+
+        ### step 5: calculate utxo and, if everything ok, update blockchain
+        if self.calculate_utxo(tmp_blockchain):
+            self.blockchain = tmp_blockchain
+            return True
+
+        return False
+
+

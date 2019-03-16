@@ -23,3 +23,6 @@ DISTRIBUTE_WEALTH = '/init/distribute/wealth'
 NEW_TRANSACTION = '/transaction/new'
 
 WALLET_BALANCE = '/wallet/balance'
+
+BLOCKCHAIN_LENGTH = '/blockchain/length'
+BLOCKCHAIN_HASHES = '/blockchain/hashes'

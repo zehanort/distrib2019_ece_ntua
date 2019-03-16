@@ -24,10 +24,10 @@ node = None
 @app.route(cfg.NEW_TRANSACTION, methods=['POST'])
 def get_new_transaction():
     new_transaction = Transaction(**request.get_json())
-    new_transaction.inputs = UtilizableList(
-        [TransactionOuput(**i) for i in new_transaction.inputs]
-    )
-    new_transaction.transaction_id = new_transaction.hash()
+    # new_transaction.inputs = UtilizableList(
+    #     [TransactionOuput(**i) for i in new_transaction.inputs]
+    # )
+    # new_transaction.transaction_id = new_transaction.hash()
 
     # print("NEW TRANSACTION", new_transaction.to_dict(), '\n\n')
 
@@ -39,6 +39,19 @@ def get_new_transaction():
     transaction_thread.start()
     # node.add_transaction(new_transaction)
     return 'New transaction received\n', 200
+
+@app.route(cfg.NEW_BLOCK, methods=['POST'])
+def get_new_block():
+    new_block = Block(**request.get_json())
+
+@app.route(cfg.BLOCKCHAIN_LENGTH, methods=['GET'])
+def report_blockchain_length():
+    return jsonify(len(node.blockchain)), 200
+
+@app.route(cfg.BLOCKCHAIN_HASHES, methods=['POST'])
+def report_blockchain():
+    hashes = request.get_json()
+    return jsonify(node.blockchain_diff(hashes)), 200
 
 @app.route(cfg.WALLET_BALANCE, methods=['GET'])
 def report_wallet_balance():
