@@ -27,6 +27,7 @@ def get_new_transaction():
     new_transaction.inputs = UtilizableList(
         [TransactionOuput(**i) for i in new_transaction.inputs]
     )
+
     # assign handling of incoming transaction to a new thread
     transaction_thread = Thread(
         target=node.add_transaction,
@@ -105,6 +106,9 @@ if __name__ == '__main__':
                     if cfg.is_bootstrap(inet_addr):
                         continue
                     node.create_transaction(wallet_addr, 100)
+
+                    from time import sleep
+                    sleep(2)
 
                 cfg.CAN_DISTRIBUTE_WEALTH = False
                 return 'Distribution of wealth completed successfully!\n', 200
