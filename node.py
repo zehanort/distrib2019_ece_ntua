@@ -160,12 +160,13 @@ class Node:
             while not self.block_queue.empty():
                 incoming_block = self.block_queue.get()
 
+                print('>> incoming_block hash from queue:',incoming_block.current_hash)
                 # is it the next block of our blockchain?
                 if incoming_block.previous_hash == self.blockchain[-1].current_hash:
-                    print('>> New valid block from queue', incoming_block.current_hash)
+                    print('\t>> New valid block from queue')
                     self.blockchain.append(incoming_block)
                 else:
-                    print('>> Error occcured: let\'s run resolve_conflicts')
+                    print('\t>> Error occcured: let\'s run resolve_conflicts')
                     self.resolve_conflicts()
 
                 self.fix_transaction_pool()
