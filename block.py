@@ -8,7 +8,7 @@ class Block(Utilizable):
         # args: index, previous_hash, transactions
         self.timestamp = str(datetime.datetime.now())
         self.__dict__.update(data)
-        if 'transactions' in data:
+        if 'transactions' in data and not isinstance(data['transactions'], UtilizableList):
             self.transactions = UtilizableList([Transaction(**t) for t in self.transactions])
         
     def hash(self, set_own=True, **kwargs):
