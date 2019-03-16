@@ -66,8 +66,9 @@ class Node:
                 [GenesisBlock.parse(received_data['genesis_block'])]
             )
 
-            print(type(self.blockchain[0]))
-            print(self.blockchain.to_dict())
+            print(">>>", self.blockchain.to_dict(), type(self.blockchain[0]))
+
+            self.validate_chain(self.blockchain)
 
             if 'ring' in received_data:
                 self.ring = [tuple(i) for i in received_data['ring']]
@@ -188,7 +189,6 @@ class Node:
             print('ETREKSE TO VERIFY!!!!!!!!!!!!!!!!')
         
         ### step 2: validate inputs
-
         balance = 0 
         for i in inputs:
             if not i in self.utxo[sender_address]:
@@ -232,7 +232,28 @@ class Node:
 
     # Consensus Methods
 
-    def validate_chain(self, chain):
-        if not isinstance(chain[0], GenesisBlock):
+    def validate_chain(self, blockchain):
+        if not isinstance(blockchain[0], GenesisBlock):
             return False
-        return all(self.validate_block(b) for b in chain[1:])
+
+        tmp_utxo = defaultdict(list)
+
+        genesis_block = blockchain[0]
+        genesis_transaction = genesis_block.transactions[0]
+
+        tmp_utxo[genesis_transaction.recipient_address].append(genesis_transaction.utxo[1])
+
+        for block in blockchain[1:]:
+            curr_utxo = self.validate_block(block)
+
+            if not curr_utxo:
+                return False
+
+            sender_utxo, recipient_utxo = curr_utxo
+            
+            tmp_utxo[sender_utxo.recipient_address].append(sender_utxo)
+            tmp_utxo[recipient_utxo.recipient_address].append(recipient_utxo)
+
+        self.utxo = tmp_utxo
+
+        return True
