@@ -72,6 +72,7 @@ class Node:
             )
 
             self.validate_chain(self.blockchain)
+            self.calculate_utxo(self.blockchain)
 
             if 'ring' in received_data:
                 self.ring = [tuple(i) for i in received_data['ring']]
@@ -185,9 +186,6 @@ class Node:
         with validate_transaction_lock:
             balance = 0 
             for i in inputs:
-                print('>>>', i.to_dict())
-                print('>>>', self.utxo[sender_address])
-
                 if not i in self.utxo[sender_address]:
                     print('eskasa edw')
                     return False
