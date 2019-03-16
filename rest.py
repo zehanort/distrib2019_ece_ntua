@@ -24,10 +24,10 @@ node = None
 @app.route(cfg.NEW_TRANSACTION, methods=['POST'])
 def get_new_transaction():
     new_transaction = Transaction(**request.get_json())
-    new_transaction.inputs = UtilizableList(
-        [TransactionOuput(**i) for i in new_transaction.inputs]
-    )
-    new_transaction.transaction_id = new_transaction.hash()
+    # new_transaction.inputs = UtilizableList(
+    #     [TransactionOuput(**i) for i in new_transaction.inputs]
+    # )
+    # new_transaction.transaction_id = new_transaction.hash()
 
     # print("NEW TRANSACTION", new_transaction.to_dict(), '\n\n')
 
