@@ -30,3 +30,13 @@ class GenesisBlock(Block):
         self.nonce = 0
         self.previous_hash = 1
         self.transactions = UtilizableList([genesis_transaction])
+
+    @classmethod
+    def parse(cls, **data):
+        obj = cls(data['genesis_transaction'])
+        obj.index = data['index']
+        obj.nonce = data['nonce']
+        obj.timestamp = data['timestamp']
+        obj.previous_hash = data['previous_hash']
+
+        return obj

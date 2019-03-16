@@ -77,7 +77,7 @@ if __name__ == '__main__':
             with assign_id_lock:
                 response = {
                     'id' : node.register_node_to_ring(inet_address, wallet_address),
-                    'blockchain' : node.blockchain.to_dict()
+                    'genesis_block' : node.blockchain[0].to_dict()
                 }
 
             if response['id'] == cfg.NODES-1:
