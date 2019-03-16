@@ -185,6 +185,9 @@ class Node:
         with validate_transaction_lock:
             balance = 0 
             for i in inputs:
+                print('>>>', i.to_dict())
+                print('>>>', self.utxo[sender_address])
+
                 if not i in self.utxo[sender_address]:
                     print('eskasa edw')
                     return False
