@@ -28,6 +28,7 @@ class GenesisBlock(Block):
         self.nonce = 0
         self.previous_hash = 1
         self.transactions = UtilizableList([genesis_transaction])
+        self.current_hash = self.hash()
 
     @classmethod
     def parse(cls, data):
