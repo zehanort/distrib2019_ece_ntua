@@ -173,6 +173,8 @@ class Node:
         self.broadcast(t.to_dict(append='signature'), cfg.NEW_TRANSACTION, 'POST')
 
     def validate_transaction(self, incoming_transaction):
+        print(">>>>>>>>", incoming_transaction.to_dict())
+
         sender_address = incoming_transaction.sender_address
         recipient_address = incoming_transaction.recipient_address
         amount = incoming_transaction.amount
