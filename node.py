@@ -160,9 +160,13 @@ class Node:
             while not self.block_queue.empty():
                 incoming_block = self.block_queue.get()
 
-                print('>> incoming_block hash from queue:',incoming_block.current_hash)
+                print('>> Incoming_block hash from queue:',incoming_block.current_hash)
                 # is it the next block of our blockchain?
+
+                print('\t -------', self.blockchain[-1].current_hash ,len(self.blockchain))
                 if incoming_block.previous_hash == self.blockchain[-1].current_hash:
+                    print('\t', self.blockchain[-1].current_hash, len(self.blockchain), '-------')
+
                     print('\t>> New valid block from queue')
                     self.blockchain.append(incoming_block)
                 else:
