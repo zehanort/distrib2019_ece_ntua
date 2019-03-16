@@ -184,21 +184,23 @@ class Node:
         verifier = PKCS1_v1_5.new(public_key)
         transaction_hash = incoming_transaction.hash(as_hex=False)
 
-        print('\t[] VERIFIER ATTRIBUTES')
-        print('\t[] transaction dict:', incoming_transaction.to_dict())
-        print('\t[] hash:', transaction_hash.hexdigest())
-        print('\t[] signature:', signature)
+        # print('\t[] VERIFIER ATTRIBUTES')
+        # print('\t[] transaction dict:', incoming_transaction.to_dict())
+        # print('\t[] hash:', transaction_hash.hexdigest())
+        # print('\t[] signature:', signature)
         if not verifier.verify(transaction_hash, binascii.unhexlify(signature)):
-            print('GAMITHIKE TO VERIFY!!!!!!!!!!!!!!!!!')
+            # print('GAMITHIKE TO VERIFY!!!!!!!!!!!!!!!!!')
             return False
         else:
-            print('ETREKSE TO VERIFY!!!!!!!!!!!!!!!!')
+            # print('ETREKSE TO VERIFY!!!!!!!!!!!!!!!!')
         
         ### step 2: validate inputs
         with validate_transaction_lock:
             balance = 0 
             for i in inputs:
-                print("[SKATA]", i, self.utxo[sender_address])
+                print("\t[SKATA]", i, self.utxo[sender_address])
+                print("\t", [i.to_dict() for i in self.utxo[sender_address]])
+                
                 if not i in self.utxo[sender_address]:
                     print('eskasa edw')
                     return False
