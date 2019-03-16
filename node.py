@@ -191,8 +191,8 @@ class Node:
         if not verifier.verify(transaction_hash, binascii.unhexlify(signature)):
             # print('GAMITHIKE TO VERIFY!!!!!!!!!!!!!!!!!')
             return False
-        else:
-            # print('ETREKSE TO VERIFY!!!!!!!!!!!!!!!!')
+        # else:
+        #     # print('ETREKSE TO VERIFY!!!!!!!!!!!!!!!!')
         
         ### step 2: validate inputs
         with validate_transaction_lock:
