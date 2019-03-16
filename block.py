@@ -37,5 +37,6 @@ class GenesisBlock(Block):
         obj.nonce = data['nonce']
         obj.timestamp = data['timestamp']
         obj.previous_hash = data['previous_hash']
+        obj.current_hash = data['current_hash']
 
         return obj
