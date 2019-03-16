@@ -28,6 +28,8 @@ def get_new_transaction():
         [TransactionOuput(**i) for i in new_transaction.inputs]
     )
 
+    print("NEW TRANSACTION", new_transaction.to_dict())
+
     # assign handling of incoming transaction to a new thread
     # transaction_thread = Thread(
     #     target=node.add_transaction,
