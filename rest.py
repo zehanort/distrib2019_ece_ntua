@@ -29,11 +29,12 @@ def get_new_transaction():
     )
 
     # assign handling of incoming transaction to a new thread
-    transaction_thread = Thread(
-        target=node.add_transaction,
-        args=(new_transaction,)
-    )
-    transaction_thread.start()
+    # transaction_thread = Thread(
+    #     target=node.add_transaction,
+    #     args=(new_transaction,)
+    # )
+    # transaction_thread.start()
+    node.add_transaction(new_transaction)
     return 'new transaction received\n', 200
 
 @app.route(cfg.WALLET_BALANCE, methods=['GET'])
@@ -108,7 +109,7 @@ if __name__ == '__main__':
                     node.create_transaction(wallet_addr, 100)
 
                     from time import sleep
-                    sleep(2)
+                    # sleep(2)
 
                 cfg.CAN_DISTRIBUTE_WEALTH = False
                 return 'Distribution of wealth completed successfully!\n', 200
