@@ -49,7 +49,7 @@ def get_new_block():
 
 @app.route(cfg.BLOCKCHAIN, methods=['GET'])
 def return_blockchain():
-    return jsonify(node.blockchain.to_dict()), 200
+    return jsonify(node.blockchain.to_dict(append='current_hash')), 200
 
 @app.route(cfg.BLOCKCHAIN_LENGTH, methods=['GET'])
 def report_blockchain_length():
