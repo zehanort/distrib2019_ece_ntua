@@ -341,7 +341,7 @@ class Node:
             for b in new_blocks:
                 new_transactions += b.transactions
 
-            new_transactions = set(new_transactions)
+            # new_transactions = set(new_transactions)
             diff = UtilizableList(
                 [t for t in my_transactions if t not in new_transactions]
             )
@@ -359,7 +359,7 @@ class Node:
         blockchain_transactions = []
         for b in self.blockchain:
             blockchain_transactions += b.transactions
-        blockchain_transactions = set(blockchain_transactions)
+        # blockchain_transactions = set(blockchain_transactions)
 
         with add_transaction_lock:
             self.transaction_pool = UtilizableList([
