@@ -70,6 +70,8 @@ class Node:
 
             self.validate_chain(self.blockchain)
 
+            print(">>>", self.utxo)
+
             if 'ring' in received_data:
                 self.ring = [tuple(i) for i in received_data['ring']]
                 print('Ring:', self.ring)
