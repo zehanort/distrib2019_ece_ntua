@@ -12,6 +12,7 @@ from threading import Lock
 from queue import Queue
 
 validate_transaction_lock = Lock()
+add_transaction_lock = Lock()
 mining_lock = Lock()
 
 class Node:
