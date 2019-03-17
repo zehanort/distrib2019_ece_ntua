@@ -374,6 +374,7 @@ class Node:
         return False
 
     def fix_transaction_pool(self):
+        print('AAAAAAAA:', self.transaction_pool.to_dict())
         blockchain_transactions = []
         for b in self.blockchain:
             blockchain_transactions += b.transactions
@@ -383,3 +384,4 @@ class Node:
             self.transaction_pool = UtilizableList([
                 t for t in self.transaction_pool if t not in blockchain_transactions
             ])
+        print('BBBBBBBB:', self.transaction_pool.to_dict())
