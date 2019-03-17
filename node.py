@@ -8,7 +8,7 @@ from utils import *
 from collections import defaultdict
 from copy import deepcopy
 
-from threading import Lock
+from threading import Lock, Thread
 from queue import Queue
 
 validate_transaction_lock = Lock()
@@ -206,8 +206,12 @@ class Node:
         )
         
         self.wallet.sign_transaction(t)
+        add_transaction_thread = Thread(
+            target=self.add_transaction,
+            args=(t,)
+        )
+        add_transaction_thread.start()
         self.broadcast(t.to_dict(append='signature'), cfg.NEW_TRANSACTION, 'POST')
-        self.add_transaction(t)
 
     def validate_transaction(self, incoming_transaction):
         sender_address = incoming_transaction.sender_address
