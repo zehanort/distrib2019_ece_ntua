@@ -250,6 +250,7 @@ class Node:
     def add_transaction(self, transaction):
         with add_transaction_lock:
             if not self.validate_transaction(transaction):
+                print('Couldn\'t validate transaction')
                 return
 
             self.transaction_pool.append(transaction)
