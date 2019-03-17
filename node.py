@@ -244,21 +244,10 @@ class Node:
         return True
 
     def add_transaction(self, transaction):
-        #if enough transactions mine
-        if not self.validate_transaction(transaction):
-            return
-
-        # self.transaction_pool.append(transaction)
-        # if len(self.transaction_pool) >= cfg.CAPACITY:
-        #     ### step 1: mine block
-        #     mined_block = self.mine_block()
-
-        #     ### step 2: did i recieve any block(s) while mining?
-        #     self.blockchain.append(mined_block)
-
-        #     self.broadcast_block(mined_block)
-
         with add_transaction_lock:
+            if not self.validate_transaction(transaction):
+                return
+
             self.transaction_pool.append(transaction)
 
         self.mine_block()
