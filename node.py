@@ -114,6 +114,7 @@ class Node:
     def mine_block(self):
         with mining_lock:
             if not len(self.transaction_pool) >= cfg.CAPACITY:
+                print('I don\'t have many Transactions')
                 return
 
             last_block = self.blockchain[-1]
@@ -169,7 +170,7 @@ class Node:
                 if self.validate_block(incoming_block, self.blockchain[-1].current_hash):
                     for t in incoming_block.transactions:
                         self.validate_transaction(t)
-                        
+
                     print('\t[**] New valid block from queue')
                     with blockchain_lock:
                         self.blockchain.append(incoming_block)
