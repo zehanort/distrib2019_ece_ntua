@@ -165,16 +165,12 @@ class Node:
                 print('>> Incoming_block hash from queue:', incoming_block.current_hash, incoming_block.previous_hash)
                 # is it the next block of our blockchain?
 
-                print('\t -------', self.blockchain[-1].current_hash ,len(self.blockchain))
+                self.print_chain()
                 if incoming_block.previous_hash == self.blockchain[-1].current_hash:
-                    print('\t', self.blockchain[-1].current_hash, len(self.blockchain), '-------')
-
                     print('\t[**] New valid block from queue')
                     with blockchain_lock:
                         self.blockchain.append(incoming_block)
                 else:
-                    print('\t', self.blockchain[-1].current_hash, len(self.blockchain), '-------')
-
                     print('\t[!!] Error occcured: let\'s run resolve_conflicts')
                     self.resolve_conflicts()
 
@@ -283,6 +279,11 @@ class Node:
                     return False
 
         return True
+
+    def print_chain(self):
+        print('GenesisBlock ->', end='')
+        for b in self.blockchain:
+            print(b.current_hash, '->', end='')
 
     # Wallet Methods
 
