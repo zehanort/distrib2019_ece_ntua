@@ -12,6 +12,7 @@ from threading import Lock
 from queue import Queue
 
 validate_transaction_lock = Lock()
+blockchain_lock = Lock()
 add_transaction_lock = Lock()
 mining_lock = Lock()
 
@@ -164,17 +165,18 @@ class Node:
                 print('>> Incoming_block hash from queue:', incoming_block.current_hash, incoming_block.previous_hash)
                 # is it the next block of our blockchain?
 
-                print('\t -------', self.blockchain[-1].current_hash ,len(self.blockchain))
-                if incoming_block.previous_hash == self.blockchain[-1].current_hash:
-                    print('\t', self.blockchain[-1].current_hash, len(self.blockchain), '-------')
+                with blockchain_lock:
+                    print('\t -------', self.blockchain[-1].current_hash ,len(self.blockchain))
+                    if incoming_block.previous_hash == self.blockchain[-1].current_hash:
+                        print('\t', self.blockchain[-1].current_hash, len(self.blockchain), '-------')
 
-                    print('\t[**] New valid block from queue')
-                    self.blockchain.append(incoming_block)
-                else:
-                    print('\t', self.blockchain[-1].current_hash, len(self.blockchain), '-------')
+                        print('\t[**] New valid block from queue')
+                        self.blockchain.append(incoming_block)
+                    else:
+                        print('\t', self.blockchain[-1].current_hash, len(self.blockchain), '-------')
 
-                    print('\t[!!] Error occcured: let\'s run resolve_conflicts')
-                    self.resolve_conflicts()
+                        print('\t[!!] Error occcured: let\'s run resolve_conflicts')
+                        self.resolve_conflicts()
 
                 self.fix_transaction_pool()
 
@@ -299,13 +301,19 @@ class Node:
 
         return True
 
-    def blockchain_diff(self, hashes):
-        my_hashes = [b.current_hash for b in self.blockchain]
-        for i, (my_hash, other_hash) in enumerate(zip(my_hashes, hashes)):
-            if my_hash != other_hash:
-                break
+    @property
+    def blockchain_length(self):
+        with blockchain_lock:
+            return len(self.blockchain)
 
-        return self.blockchain[i:].to_dict(append='current_hash')
+    def blockchain_diff(self, hashes):
+        with blockchain_lock:
+            my_hashes = [b.current_hash for b in self.blockchain]
+            for i, (my_hash, other_hash) in enumerate(zip(my_hashes, hashes)):
+                if my_hash != other_hash:
+                    break
+
+            return self.blockchain[i:].to_dict(append='current_hash')
 
     def resolve_conflicts(self):
         ### step 1: ask for blockchain length

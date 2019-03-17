@@ -55,7 +55,7 @@ def return_blockchain():
 
 @app.route(cfg.BLOCKCHAIN_LENGTH, methods=['GET'])
 def report_blockchain_length():
-    return jsonify(len(node.blockchain)), 200
+    return jsonify(node.blockchain_length), 200
 
 @app.route(cfg.BLOCKCHAIN_HASHES, methods=['POST'])
 def report_blockchain_diffs():
