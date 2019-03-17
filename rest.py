@@ -109,28 +109,28 @@ if __name__ == '__main__':
         # give ids to all other nodes
         @app.route(cfg.GET_ID, methods=['POST'])
         def assign_id_to_node():
-            inet_address = request.form['inet_address']
-            wallet_address = request.form['wallet_address']
-
             with assign_id_lock:
+                inet_address = request.form['inet_address']
+                wallet_address = request.form['wallet_address']
+
                 response = {
                     'id' : node.register_node_to_ring(inet_address, wallet_address),
                     'genesis_block' : node.blockchain[0].to_dict(append='current_hash')
                 }
 
-            if response['id'] == cfg.NODES-1:
-                # the last one receives the ring as well
-                response['ring'] = node.ring
+                if response['id'] == cfg.NODES-1:
+                    # the last one receives the ring as well
+                    response['ring'] = node.ring
 
-                # need different handling for broadcasting
-                data = { 'ring' : node.ring }
-                node.broadcast(data, cfg.GET_RING, 'POST', blacklist=[inet_address])
-                
-                cfg.CAN_DISTRIBUTE_WEALTH = True
+                    # need different handling for broadcasting
+                    data = { 'ring' : node.ring }
+                    node.broadcast(data, cfg.GET_RING, 'POST', blacklist=[inet_address])
+                    
+                    cfg.CAN_DISTRIBUTE_WEALTH = True
 
-            print('Served {} (gave it id {})'.format(inet_address, response['id']))
+                print('Served {} (gave it id {})'.format(inet_address, response['id']))
 
-            return jsonify(response), 200
+                return jsonify(response), 200
 
         # send 100 NBC to every node after network initialization
         @app.route(cfg.DISTRIBUTE_WEALTH, methods=['GET'])
