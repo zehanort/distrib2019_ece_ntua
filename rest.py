@@ -27,8 +27,8 @@ def print_ring():
 
 @app.route(cfg.CREATE_TRANSACTION, methods=['POST'])
 def create_new_transaction():
-    recipient_address = request['recipient_address']
-    amount = request['amount']
+    recipient_address = request.json['recipient_address']
+    amount = request.json['amount']
     node.create_transaction(recipient_address, amount)
     return 'Transaction created successfully.\n', 200
 
