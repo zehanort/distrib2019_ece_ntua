@@ -176,8 +176,7 @@ class Node:
                     print('\t', self.blockchain[-1].current_hash, len(self.blockchain), '-------')
 
                     print('\t[!!] Error occcured: let\'s run resolve_conflicts')
-                    with blockchain_lock:
-                        self.resolve_conflicts()
+                    self.resolve_conflicts()
 
                 self.fix_transaction_pool()
 
@@ -365,7 +364,9 @@ class Node:
                 self.transaction_pool += diff
 
             # replace blockchain
-            self.blockchain = tmp_blockchain
+            with blockchain_lock:
+                self.blockchain = tmp_blockchain
+
             return True
 
         return False
