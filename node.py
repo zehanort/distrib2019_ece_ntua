@@ -174,11 +174,17 @@ class Node:
                     print('\t[**] New valid block from queue')
                     with blockchain_lock:
                         self.blockchain.append(incoming_block)
+                    
+                    self.fix_transaction_pool()
                 else:
                     print('\t[!!] Error occcured: let\'s run resolve_conflicts')
                     self.resolve_conflicts()
+                    self.fix_transaction_pool()
 
-                self.fix_transaction_pool()
+                    for t in self.transaction_pool:
+                        self.validate_transaction(t)
+
+                # self.fix_transaction_pool()
 
         self.mine_block()
 
@@ -381,6 +387,6 @@ class Node:
         with add_transaction_lock:
             self.transaction_pool = UtilizableList([
                 t for t in self.transaction_pool
-                if t not in blockchain_transactions and self.validate_transaction(t)
+                if t not in blockchain_transactions
             ])
         print('BBBBBBBB:', self.transaction_pool.to_dict())
