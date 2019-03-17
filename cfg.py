@@ -20,6 +20,7 @@ GET_ID = '/init/id/get'
 GET_RING = '/init/ring/get'
 DISTRIBUTE_WEALTH = '/init/distribute/wealth'
 
+CREATE_TRANSACTION = '/transaction/create'
 NEW_TRANSACTION = '/transaction/new'
 NEW_BLOCK = '/block/new'
 

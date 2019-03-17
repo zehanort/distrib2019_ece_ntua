@@ -2,7 +2,7 @@ from sys import argv
 import requests
 
 addr = 'http://' + argv[1]
-ring = requests.get(addr)
+ring = requests.get(addr + '/ring')
 ring = ring.json()
 
 print('spender> ', end='')
