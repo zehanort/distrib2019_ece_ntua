@@ -60,6 +60,10 @@ def get_new_block():
 
     return 'New block received\n', 200
 
+@app.route(cfg.POOL, methods=['GET'])
+def return_pool():
+    return jsonify(node.transaction_pool.to_dict()), 200
+
 @app.route(cfg.BLOCKCHAIN, methods=['GET'])
 def return_blockchain():
     return jsonify(node.blockchain[1:].to_dict(append='current_hash', append_rec='signature')), 200
