@@ -166,7 +166,9 @@ class Node:
                 # is it the next block of our blockchain?
 
                 self.print_chain()
-                if incoming_block.previous_hash == self.blockchain[-1].current_hash:
+                if self.validate_block(incoming_block, self.blockchain[-1].current_hash)
+                        and self.calculate_utxo(UtilizableList(incoming_block)):
+
                     print('\t[**] New valid block from queue')
                     with blockchain_lock:
                         self.blockchain.append(incoming_block)
