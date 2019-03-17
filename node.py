@@ -112,9 +112,9 @@ class Node:
 
     def mine_block(self):
         with mining_lock:
-            if not len(self.blockchain) >= cfg.CAPACITY:
+            if not len(self.transaction_pool) >= cfg.CAPACITY:
                 return
-                
+
             last_block = self.blockchain[-1]
             index = last_block.index + 1
             previous_hash = last_block.current_hash
