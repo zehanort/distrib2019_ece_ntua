@@ -181,7 +181,7 @@ class Node:
                     self.resolve_conflicts()
                     self.fix_transaction_pool()
 
-                    self.transaction_pool = [t for t in self.transaction_pool if self.validate_transaction(t)]
+                    self.transaction_pool = UtilizableList([t for t in self.transaction_pool if self.validate_transaction(t)])
 
                 # self.fix_transaction_pool()
 
