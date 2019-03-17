@@ -141,7 +141,7 @@ class Node:
                 nonce += 1
 
         self.block_queue.put(new_block)
-        self.broadcast(new_block.to_dict(append='current_hash'), cfg.NEW_BLOCK, 'POST')
+        self.broadcast(new_block.to_dict(append='current_hash', append_rec='signature'), cfg.NEW_BLOCK, 'POST')
         self.resolve_block_queue()
 
     def validate_block(self, incoming_block, previous_hash):
