@@ -307,12 +307,13 @@ class Node:
             return len(self.blockchain)
 
     def blockchain_diff(self, hashes):
-        my_hashes = [b.current_hash for b in self.blockchain]
-        for i, (my_hash, other_hash) in enumerate(zip(my_hashes, hashes)):
-            if my_hash != other_hash:
-                break
+        with blockchain_lock:
+            my_hashes = [b.current_hash for b in self.blockchain]
+            for i, (my_hash, other_hash) in enumerate(zip(my_hashes, hashes)):
+                if my_hash != other_hash:
+                    break
 
-        return self.blockchain[i:].to_dict(append='current_hash')
+            return self.blockchain[i:].to_dict(append='current_hash')
 
     def resolve_conflicts(self):
         ### step 1: ask for blockchain length

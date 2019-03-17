@@ -60,9 +60,7 @@ def report_blockchain_length():
 @app.route(cfg.BLOCKCHAIN_HASHES, methods=['POST'])
 def report_blockchain_diffs():
     hashes = request.get_json()
-    with node.blockchain_lock:
-        diffs = node.blockchain_diff(hashes)
-    return jsonify(diffs), 200
+    return jsonify(node.blockchain_diff(hashes)), 200
 
 @app.route(cfg.WALLET_BALANCE, methods=['GET'])
 def report_wallet_balance():
