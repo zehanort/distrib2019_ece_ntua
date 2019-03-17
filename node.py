@@ -149,7 +149,7 @@ class Node:
         block_hash = incoming_block.hash(set_own=False)
 
         if not ((block_hash == current_hash) and 
-               (bin(int(current_hash, 16)).startswith('0b' + '0' * cfg.DIFFICULTY))):
+               (bin(int(current_hash, 16)).startswith('0b' + '1' * cfg.DIFFICULTY))):
             return False
 
         if not (previous_hash == incoming_block.previous_hash):
@@ -165,17 +165,18 @@ class Node:
                 print('>> Incoming_block hash from queue:', incoming_block.current_hash, incoming_block.previous_hash)
                 # is it the next block of our blockchain?
 
-                with blockchain_lock:
-                    print('\t -------', self.blockchain[-1].current_hash ,len(self.blockchain))
-                    if incoming_block.previous_hash == self.blockchain[-1].current_hash:
-                        print('\t', self.blockchain[-1].current_hash, len(self.blockchain), '-------')
+                print('\t -------', self.blockchain[-1].current_hash ,len(self.blockchain))
+                if incoming_block.previous_hash == self.blockchain[-1].current_hash:
+                    print('\t', self.blockchain[-1].current_hash, len(self.blockchain), '-------')
 
-                        print('\t[**] New valid block from queue')
+                    print('\t[**] New valid block from queue')
+                    with blockchain_lock:
                         self.blockchain.append(incoming_block)
-                    else:
-                        print('\t', self.blockchain[-1].current_hash, len(self.blockchain), '-------')
+                else:
+                    print('\t', self.blockchain[-1].current_hash, len(self.blockchain), '-------')
 
-                        print('\t[!!] Error occcured: let\'s run resolve_conflicts')
+                    print('\t[!!] Error occcured: let\'s run resolve_conflicts')
+                    with blockchain_lock:
                         self.resolve_conflicts()
 
                 self.fix_transaction_pool()
@@ -295,7 +296,7 @@ class Node:
         if not isinstance(blockchain[0], GenesisBlock):
             return False
 
-        if not all(self.validate_block(block, blockchain[i-1].current_hash) 
+        if not all(self.validate_block(block, blockchain[i].current_hash) 
                                        for i, block in enumerate(blockchain[1:])):
             return False
 
