@@ -21,6 +21,17 @@ node = None
 
 ### ROUTES FOR ALL NBC NETWORK NODES ###
 
+@app.route('/ring', methods=['GET'])
+def print_ring():
+    return jsonify(node.ring), 200
+
+@app.route(cfg.CREATE_TRANSACTION, methods=['POST'])
+def create_new_transaction():
+    recipient_address = request['recipient_address']
+    amount = request['amount']
+    node.create_transaction(recipient_address, amount)
+    return 'Transaction created successfully.\n', 200
+
 @app.route(cfg.NEW_TRANSACTION, methods=['POST'])
 def get_new_transaction():
     new_transaction = Transaction(**request.get_json())

@@ -32,7 +32,7 @@ class Utilizable(object):
 		Comments: Useful for JSON serialization 
 	'''
 
-	def to_dict(self, append=None):
+	def to_dict(self, append=None, append_rec=None):
 		'''
 			Serialize python object as dict
 
@@ -44,7 +44,7 @@ class Utilizable(object):
 		def helper(key):
 			obj = getattr(self, key)
 			if isinstance(obj, Utilizable):
-				return obj.to_dict()
+				return obj.to_dict(append=append_rec)
 			else:
 				return obj
 

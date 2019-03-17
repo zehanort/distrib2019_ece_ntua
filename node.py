@@ -314,7 +314,7 @@ class Node:
                 if my_hash != other_hash:
                     break
 
-            return self.blockchain[i:].to_dict(append='current_hash')
+            return self.blockchain[i:].to_dict(append='current_hash', append_rec='signature')
 
     def resolve_conflicts(self):
         ### step 1: ask for blockchain length
