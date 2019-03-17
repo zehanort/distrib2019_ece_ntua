@@ -371,6 +371,7 @@ class Node:
 
         with add_transaction_lock:
             self.transaction_pool = UtilizableList([
-                t for t in self.transaction_pool if t not in blockchain_transactions
+                t for t in self.transaction_pool
+                if t not in blockchain_transactions and self.validate_transaction(t)
             ])
         print('BBBBBBBB:', self.transaction_pool.to_dict())
