@@ -133,10 +133,7 @@ class Node:
                 new_block.nonce = nonce
                 new_block_hash = new_block.hash()
 
-                # print('>>>', bin(int(new_block_hash, 16)), nonce)
-
-                if bin(int(new_block_hash, 16)).startswith('0b' + '1' * cfg.DIFFICULTY):
-                    # print('[FOUND NONCE!] ->', new_block.to_dict(append='current_hash'))
+                if format(int(new_block_hash, 16), '0256b').startswith('0' * cfg.DIFFICULTY):
                     break
 
                 nonce += 1
@@ -150,7 +147,7 @@ class Node:
         block_hash = incoming_block.hash(set_own=False)
 
         if not ((block_hash == current_hash) and 
-               (bin(int(current_hash, 16)).startswith('0b' + '1' * cfg.DIFFICULTY))):
+               (format(int(current_hash, 16), '0256b').startswith('0' * cfg.DIFFICULTY))):
             return False
 
         if not (previous_hash == incoming_block.previous_hash):
@@ -377,7 +374,6 @@ class Node:
         return False
 
     def fix_transaction_pool(self):
-        print('AAAAAAAA:', self.transaction_pool.to_dict())
         blockchain_transactions = []
         for b in self.blockchain:
             blockchain_transactions += b.transactions
@@ -388,4 +384,3 @@ class Node:
                 t for t in self.transaction_pool
                 if t not in blockchain_transactions
             ])
-        print('BBBBBBBB:', self.transaction_pool.to_dict())

@@ -1,5 +1,5 @@
 import json
-from Crypto.Hash import SHA
+from Crypto.Hash import SHA256
 from collections import OrderedDict
 
 def dict_attributes(*attributes):
@@ -71,7 +71,7 @@ class Utilizable(object):
 					 True:  return hexdigest of hash
 
 		'''
-		obj_hash = SHA.new(self.json(**kwargs).encode('utf8'))
+		obj_hash = SHA256.new(self.json(**kwargs).encode('utf8'))
 
 		if as_hex:
 			return obj_hash.hexdigest()

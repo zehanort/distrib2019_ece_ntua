@@ -1,6 +1,6 @@
 import requests
 
-BOOTSTRAP_ADDRESS = '192.168.1.39:8080'
+BOOTSTRAP_ADDRESS = '192.168.1.187:5000'
 
 # DIFFICULTY and CAPACITY will be set at runtime
 DIFFICULTY = None
