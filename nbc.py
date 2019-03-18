@@ -82,18 +82,21 @@ def report_wallet_balance():
     return jsonify(node.wallet_balance()), 200
 
 if __name__ == '__main__':
-    from argparse import ArgumentParser
+    from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 
-    parser = ArgumentParser()
-    
+    parser = ArgumentParser(
+        description='A simple node and miner of the NoobCoin network.',
+        formatter_class=ArgumentDefaultsHelpFormatter
+    )
+
     # define command line arguments
     required = parser.add_argument_group('required arguments')
     required.add_argument('-a', '--address', type=str, help='IP address used by node to connect to NBC network', required=True)
     parser.add_argument('-p', '--port', default=5000, type=int, help='port to listen on')
     parser.add_argument('-n', '--nodes', default=5, type=int, help='number of nodes in the NBC network')
-    parser.add_argument('-d', '--difficulty', default=1, type=int, help="number of leading 0's of a nonce")
+    parser.add_argument('-d', '--difficulty', default=3, type=int, help="number of leading 0's of a nonce")
     parser.add_argument('-c', '--capacity', default=1, type=int, help='number of transactions per block')
-    
+
     # parse command line arguments
     args = parser.parse_args()
     address = args.address
