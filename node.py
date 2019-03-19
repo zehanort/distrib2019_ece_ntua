@@ -52,7 +52,6 @@ class Node(object):
     def mine_block(self):
         with mining_lock:
             if not len(self.transaction_pool) >= cfg.CAPACITY:
-                print("I don't have many Transactions")
                 return
 
             last_block = self.blockchain[-1]
@@ -94,33 +93,27 @@ class Node(object):
             while not self.block_queue.empty():
                 incoming_block = self.block_queue.get()
 
-                print('>> Incoming_block hash from queue:', incoming_block.current_hash, incoming_block.previous_hash)
                 # is it the next block of our blockchain?
-
-                self.print_chain()
                 if self.validate_block(incoming_block, self.blockchain[-1].current_hash):
                     for t in incoming_block.transactions:
                         self.validate_transaction(t)
 
-                    print('\t[**] New valid block from queue')
                     with blockchain_lock:
                         self.blockchain.append(incoming_block)
                         # set end_time
                         cfg.end_time = time()
                     
                     self.fix_transaction_pool()
-                else:
-                    print('\t[!!] Error occcured: let\'s run resolve_conflicts')
-                    if self.resolve_conflicts():
-                        
-                        # if resolve_conflicts is True, then at least a block was added
-                        cfg.end_time = time()
-                        
-                        self.fix_transaction_pool()
+                
+                elif self.resolve_conflicts():
+                    # if resolve_conflicts is True, then at least a block was added
+                    cfg.end_time = time()
+                    
+                    self.fix_transaction_pool()
 
-                        self.transaction_pool = UtilizableList(
-                            [t for t in self.transaction_pool if self.validate_transaction(t)]
-                        )
+                    self.transaction_pool = UtilizableList(
+                        [t for t in self.transaction_pool if self.validate_transaction(t)]
+                    )
 
         self.mine_block()
 
@@ -165,13 +158,11 @@ class Node(object):
         ### step 2: validate inputs
         with validate_transaction_lock:
             if any(i not in self.utxo[sender_address] for i in inputs):
-                print('eskasa edw')
                 return False
 
             balance = sum(i.amount for i in inputs)
 
             if balance < amount:
-                print('eskasa edw omws')
                 return False
 
             # all inputs and the amount are valid, remove them from local utxo dict
@@ -191,7 +182,6 @@ class Node(object):
                 cfg.start_time = time()
 
             if not self.validate_transaction(transaction):
-                print("Couldn't validate transaction")
                 return
 
             self.transaction_pool.append(transaction)
@@ -212,11 +202,6 @@ class Node(object):
 
         self.utxo = backup_utxo
         return False
-
-    def print_chain(self):
-        print('GenesisBlock ->', end='')
-        for b in self.blockchain:
-            print(b.current_hash, '->', end='')
 
     # Wallet Methods
 

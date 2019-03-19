@@ -43,8 +43,6 @@ def get_new_transaction():
 def get_new_block():
     new_block = Block(**request.get_json())
 
-    print('----> Received new block from network', new_block.current_hash)
-    
     # append new_block to node block_queue
     node.block_queue.put(new_block)
     
@@ -85,7 +83,7 @@ def get_throughput():
 
 @app.route(cfg.BLOCK_TIME, methods=['GET'])
 def get_mining_time():
-    return jsonify(cfg.mean_block_time), 200
+    return jsonify(cfg.mean_mining_time), 200
 
 if __name__ == '__main__':
     from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
@@ -168,7 +166,6 @@ if __name__ == '__main__':
         @app.route(cfg.GET_RING, methods=['POST'])
         def get_ring_from_bootstrap():
             node.ring = [tuple(n) for n in request.get_json()['ring']]
-            # print('Ring:', node.ring)
             return 'Node {} received ring'.format(node.node_id), 200
 
         app.run(host=address, port=port, threaded=True)

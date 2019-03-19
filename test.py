@@ -12,8 +12,7 @@ def create_all_node_transactions(n, tests_dir, ring):
 
         transaction = transactions.readline().strip().split()
 
-        # while transaction:
-        for _ in range(5):
+        while transaction:
             # get transaction data from line of file
             recipient_node = transaction[0].lstrip('id')
             amount = int(transaction[1])
