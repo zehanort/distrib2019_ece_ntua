@@ -21,8 +21,8 @@ node = None
 
 ### ROUTES FOR ALL NBC NETWORK NODES ###
 
-@app.route('/ring', methods=['GET'])
-def print_ring():
+@app.route(cfg.RING, methods=['GET'])
+def get_ring():
     return jsonify(node.ring), 200
 
 @app.route(cfg.CREATE_TRANSACTION, methods=['POST'])
@@ -74,6 +74,18 @@ def report_blockchain_diffs():
 @app.route(cfg.WALLET_BALANCE, methods=['GET'])
 def report_wallet_balance():
     return jsonify(node.wallet_balance()), 200
+
+### TESTING ROUTES
+
+@app.route(cfg.THROUGHPUT, methods=['GET'])
+def get_throughput():
+    elapsed_time = cfg.end_time - cfg.start_time
+    n_transactions = (len(node.blockchain) - 1) * cfg.CAPACITY
+    return jsonify(n_transactions / elapsed_time), 200
+
+@app.route(cfg.BLOCK_TIME, methods=['GET'])
+def get_mining_time():
+    return jsonify(cfg.mean_block_time), 200
 
 if __name__ == '__main__':
     from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
@@ -154,7 +166,7 @@ if __name__ == '__main__':
         node = SimpleNode(full_address)
 
         @app.route(cfg.GET_RING, methods=['POST'])
-        def get_ring():
+        def get_ring_from_bootstrap():
             node.ring = [tuple(n) for n in request.get_json()['ring']]
             # print('Ring:', node.ring)
             return 'Node {} received ring'.format(node.node_id), 200

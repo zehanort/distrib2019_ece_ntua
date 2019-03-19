@@ -1,6 +1,6 @@
 import requests
 
-BOOTSTRAP_ADDRESS = '192.168.1.2:5000'
+BOOTSTRAP_ADDRESS = '192.168.1.39:5000'
 
 # DIFFICULTY and CAPACITY will be set at runtime
 DIFFICULTY = None
@@ -13,6 +13,13 @@ def is_bootstrap(address):
     return address == BOOTSTRAP_ADDRESS
 
 CAN_DISTRIBUTE_WEALTH = False
+
+# variables used for statistcs
+
+start_time = None
+end_time = 0
+mean_mining_time = 0
+n_mined_blocks = 0
 
 # routes
 
@@ -27,7 +34,13 @@ NEW_BLOCK = '/block/new'
 WALLET_BALANCE = '/wallet/balance'
 
 POOL = '/pool'
+RING = '/ring'
 
 BLOCKCHAIN = '/blockchain'
 BLOCKCHAIN_LENGTH = '/blockchain/length'
 BLOCKCHAIN_HASHES = '/blockchain/hashes'
+
+# statistics
+
+THROUGHPUT = '/stats/throughput'
+BLOCK_TIME = '/stats/block_time'

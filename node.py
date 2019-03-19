@@ -9,6 +9,7 @@ from operator import itemgetter
 from itertools import count, takewhile, accumulate
 from collections import defaultdict
 from copy import deepcopy
+from time import time
 
 from threading import Lock, Thread
 from queue import Queue
@@ -62,10 +63,20 @@ class Node(object):
                 nonce=0
             )
 
+            # count mining time
+            mining_start_time = time()
+
             new_block.hash(set_own=True)
             while not new_block.valid_proof():
                 new_block.nonce += 1
                 new_block.hash(set_own=True)
+
+            # mining done
+            mining_time = time() - mining_start_time
+            cfg.n_mined_blocks += 1
+
+            cfg.mean_mining_time = cfg.mean_mining_time * (cfg.n_mined_blocks - 1) + mining_time
+            cfg.mean_mining_time /= cfg.n_mined_blocks
 
         self.block_queue.put(new_block)
         self.broadcast(new_block.to_dict(append='current_hash', append_rec='signature'), cfg.NEW_BLOCK, 'POST')
@@ -94,11 +105,17 @@ class Node(object):
                     print('\t[**] New valid block from queue')
                     with blockchain_lock:
                         self.blockchain.append(incoming_block)
+                        # set end_time
+                        cfg.end_time = time()
                     
                     self.fix_transaction_pool()
                 else:
                     print('\t[!!] Error occcured: let\'s run resolve_conflicts')
                     if self.resolve_conflicts():
+                        
+                        # if resolve_conflicts is True, then at least a block was added
+                        cfg.end_time = time()
+                        
                         self.fix_transaction_pool()
 
                         self.transaction_pool = UtilizableList(
@@ -168,6 +185,11 @@ class Node(object):
 
     def add_transaction(self, transaction):
         with add_transaction_lock:
+
+            # start a timer for throughput
+            if cfg.start_time is None:
+                cfg.start_time = time()
+
             if not self.validate_transaction(transaction):
                 print("Couldn't validate transaction")
                 return
