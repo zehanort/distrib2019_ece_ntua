@@ -107,7 +107,7 @@ if __name__ == '__main__':
     cfg.DIFFICULTY = args.difficulty
     cfg.CAPACITY = args.capacity
 
-    if cfg.is_bootstrap(address + ':' + str(port)):
+    if cfg.is_bootstrap(full_address):
         cfg.NODES = args.nodes
         node = BootstrapNode(full_address)
         
