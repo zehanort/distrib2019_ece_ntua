@@ -18,7 +18,7 @@ CAN_DISTRIBUTE_WEALTH = False
 
 start_time = None
 end_time = 0
-mean_mining_time = 0
+mean_block_time = 0
 n_mined_blocks = 0
 
 # routes
@@ -43,4 +43,4 @@ BLOCKCHAIN_HASHES = '/blockchain/hashes'
 # statistics
 
 THROUGHPUT = '/stats/throughput'
-BLOCK_TIME = '/stats/block_time'
+BLOCK_TIME = '/stats/blocktime'
