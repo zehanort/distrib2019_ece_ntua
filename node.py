@@ -103,17 +103,13 @@ class Node(object):
                         # set end_time
                         cfg.end_time = time()
                     
-                    self.fix_transaction_pool()
+                    self.fix_transaction_pool(validate=False)
                 
                 elif self.resolve_conflicts():
                     # if resolve_conflicts is True, then at least a block was added
                     cfg.end_time = time()
                     
-                    self.fix_transaction_pool()
-
-                    self.transaction_pool = UtilizableList(
-                        [t for t in self.transaction_pool if self.validate_transaction(t)]
-                    )
+                    self.fix_transaction_pool(validate=True)
 
         self.mine_block()
 
@@ -273,14 +269,21 @@ class Node(object):
 
         return True
 
-    def fix_transaction_pool(self):
+    def fix_transaction_pool(self, validate):
         blockchain_transactions = [t for b in self.blockchain for t in b.transactions]
 
         with add_transaction_lock:
-            self.transaction_pool = UtilizableList(
-                t for t in self.transaction_pool
-                if t not in blockchain_transactions
-            )
+            if not validate:
+                self.transaction_pool = UtilizableList(
+                    t for t in self.transaction_pool
+                    if t not in blockchain_transactions
+                )
+            else:
+                self.transaction_pool = UtilizableList(
+                    t for t in self.transaction_pool
+                    if t not in blockchain_transactions
+                    and self.validate_transaction(t)
+                )
 
 class BootstrapNode(Node):
     """
