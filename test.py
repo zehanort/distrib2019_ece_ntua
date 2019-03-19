@@ -43,7 +43,7 @@ if __name__ == '__main__':
 
     # get ring from bootstrap
     r = requests.get('http://' + cfg.BOOTSTRAP_ADDRESS + cfg.RING)
-    ring = r.get_json()
+    ring = r.json()
 
     for n in range(nodes):
         transaction_threads.append(
