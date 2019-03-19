@@ -27,21 +27,15 @@ def print_ring():
 
 @app.route(cfg.CREATE_TRANSACTION, methods=['POST'])
 def create_new_transaction():
-    recipient_address = request.json['recipient_address']
-    amount = request.json['amount']
-    node.create_transaction(recipient_address, amount)
+    node.create_transaction(request.json['recipient_address'], request.json['amount'])
     return 'Transaction created successfully.\n', 200
 
 @app.route(cfg.NEW_TRANSACTION, methods=['POST'])
 def get_new_transaction():
-    new_transaction = Transaction(**request.get_json())
+    t = Transaction(**request.get_json())
 
     # assign handling of incoming transaction to a new thread
-    transaction_thread = Thread(
-        target=node.add_transaction,
-        args=(new_transaction,)
-    )
-    transaction_thread.start()
+    Thread(target=node.add_transaction, args=(t,)).start()
 
     return 'New transaction received\n', 200
 
@@ -145,14 +139,13 @@ if __name__ == '__main__':
             if not cfg.CAN_DISTRIBUTE_WEALTH:
                 return 'Distribution of wealth has been done already!\n', 200
 
-            else:
-                for inet_addr, wallet_addr in node.ring:
-                    if cfg.is_bootstrap(inet_addr):
-                        continue
-                    node.create_transaction(wallet_addr, 100)
+            for inet_addr, wallet_addr in node.ring:
+                if cfg.is_bootstrap(inet_addr):
+                    continue
+                node.create_transaction(wallet_addr, 100)
 
-                cfg.CAN_DISTRIBUTE_WEALTH = False
-                return 'Distribution of wealth completed successfully!\n', 200
+            cfg.CAN_DISTRIBUTE_WEALTH = False
+            return 'Distribution of wealth completed successfully!\n', 200
 
         # bootstrap node serves as frontend, too
         app.run(host='0.0.0.0', port=port, threaded=True)

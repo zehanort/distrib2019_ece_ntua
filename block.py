@@ -1,3 +1,4 @@
+import cfg
 import datetime
 from utils import *
 from transaction import *
@@ -11,13 +12,16 @@ class Block(Utilizable):
         if 'transactions' in data and not isinstance(data['transactions'], UtilizableList):
             self.transactions = UtilizableList([Transaction(**t) for t in self.transactions])
         
-    def hash(self, set_own=True, **kwargs):
+    def hash(self, set_own=False, **kwargs):
         block_hash = super().hash(**kwargs)
 
         if set_own:
             self.current_hash = block_hash
 
-        return self.current_hash
+        return block_hash
+
+    def valid_proof(self):
+        return format(int(self.current_hash, 16), '0256b').startswith('0' * cfg.DIFFICULTY)
 
 class GenesisBlock(Block):
     """

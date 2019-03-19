@@ -91,13 +91,3 @@ class UtilizableList(list, Utilizable):
 
 	def to_dict(self, **kwargs):
 		return [obj.to_dict(**kwargs) for obj in self]
-
-	def json(self, pointwise=True, **kwargs):
-		if not pointwise:
-			return super().json(**kwargs)
-		return [obj.json(**kwargs) for obj in self]
-
-	def hash(self, pointwise=True, **kwargs):
-		if not pointwise:
-			return super().hash(pointwise=False, **kwargs)
-		return [obj.hash(**kwargs) for obj in self]

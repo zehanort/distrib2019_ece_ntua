@@ -5,6 +5,8 @@ from transaction import *
 from wallet import *
 from utils import *
 
+from operator import itemgetter
+from itertools import count, takewhile, accumulate
 from collections import defaultdict
 from copy import deepcopy
 
@@ -21,12 +23,6 @@ class Node(object):
     Base node class, NOT MEANT to be used directly
     """
     def __init__(self, address):
-        # ring: list of (full_address, wallet_address)
-        self.ring = []
-
-        self.blockchain = None
-        self.last_block = None
-
         self.address = address
         self.wallet = Wallet()
 
@@ -34,68 +30,53 @@ class Node(object):
         self.block_queue = Queue()
 
         # key: wallet address, value: list of utxo for key
-        self.utxo = defaultdict(list)
+        self.utxo = defaultdict(UtilizableList)
 
     #  Node Methods
 
     def broadcast(self, message, dest_url, method, blacklist=[]):
-        responses = []
-        for (addr, _) in self.ring:
-            if addr in blacklist or addr == self.address:
-                continue
-            if method == 'POST':
-                responses.append(requests.post('http://' + addr + dest_url, json=message))
-            elif method == 'GET':
-                responses.append(requests.get('http://' + addr + dest_url))
-            else:
-                raise NotImplementedError('Method {} not supported'.format(method))
-        return responses
+        if method not in ['POST', 'GET']:
+            raise NotImplementedError('Method {} not supported'.format(method))
+
+        recipients = (addr for addr, _ in self.ring if addr not in blacklist + [self.address])
+        full_urls = ('http://' + addr + dest_url for addr in recipients)
+        payload = {'json': message} if method == 'POST' else {}
+
+        req = getattr(requests, method.lower())
+
+        return [req(full_url, **payload) for full_url in full_urls]
 
     # Block Methods
 
     def mine_block(self):
         with mining_lock:
             if not len(self.transaction_pool) >= cfg.CAPACITY:
-                print('I don\'t have many Transactions')
+                print("I don't have many Transactions")
                 return
 
             last_block = self.blockchain[-1]
-            index = last_block.index + 1
-            previous_hash = last_block.current_hash
-            transactions = self.transaction_pool[:cfg.CAPACITY]
-
             new_block = Block(
-                index=index,
-                previous_hash=previous_hash,
-                transactions=transactions
+                index=last_block.index+1,
+                previous_hash=last_block.current_hash,
+                transactions=self.transaction_pool[:cfg.CAPACITY],
+                nonce=0
             )
 
-            nonce = 0
-            while True:
-                new_block.nonce = nonce
-                new_block_hash = new_block.hash()
-
-                if format(int(new_block_hash, 16), '0256b').startswith('0' * cfg.DIFFICULTY):
-                    break
-
-                nonce += 1
+            new_block.hash(set_own=True)
+            while not new_block.valid_proof():
+                new_block.nonce += 1
+                new_block.hash(set_own=True)
 
         self.block_queue.put(new_block)
         self.broadcast(new_block.to_dict(append='current_hash', append_rec='signature'), cfg.NEW_BLOCK, 'POST')
         self.resolve_block_queue()
 
     def validate_block(self, incoming_block, previous_hash):
-        current_hash = incoming_block.current_hash
-        block_hash = incoming_block.hash(set_own=False)
-
-        if not ((block_hash == current_hash) and 
-               (format(int(current_hash, 16), '0256b').startswith('0' * cfg.DIFFICULTY))):
-            return False
-
-        if not (previous_hash == incoming_block.previous_hash):
-            return False
-
-        return True
+        return  (
+                    incoming_block.previous_hash == previous_hash and
+                    incoming_block.valid_proof() and
+                    incoming_block.current_hash == incoming_block.hash()
+                )
 
     def resolve_block_queue(self):
         with mining_lock:
@@ -129,32 +110,24 @@ class Node(object):
     # Transaction Methods
 
     def create_transaction(self, receiver, amount):
-        #remember to broadcast it
-
-        inputs = UtilizableList([])
-        unspent_amount = 0
-
         # we do not remove used utxos, this will be done
         # during transaction validation
-        for my_utxo in self.utxo[self.wallet.address]:
-            unspent_amount += my_utxo.amount
-            inputs.append(my_utxo)
-            if unspent_amount >= amount:
-                break
+        my_utxo = self.utxo[self.wallet.address]
+
+        cumsum = accumulate(utxo.amount for utxo in my_utxo)
+        cut = next((i for i, s in enumerate(cumsum, 1) if s >= amount), len(my_utxo))
 
         t = Transaction(
-            inputs=inputs,
+            inputs=UtilizableList(my_utxo[:cut]),
             sender_address=self.wallet.address,
             recipient_address=receiver,
             amount=amount
         )
         
         self.wallet.sign_transaction(t)
-        add_transaction_thread = Thread(
-            target=self.add_transaction,
-            args=(t,)
-        )
-        add_transaction_thread.start()
+
+        Thread(target=self.add_transaction, args=(t,)).start()
+
         self.broadcast(t.to_dict(append='signature'), cfg.NEW_TRANSACTION, 'POST')
 
     def validate_transaction(self, incoming_transaction):
@@ -174,20 +147,18 @@ class Node(object):
 
         ### step 2: validate inputs
         with validate_transaction_lock:
-            balance = 0 
-            for i in inputs:
-                if not i in self.utxo[sender_address]:
-                    print('eskasa edw')
-                    return False
-                else:
-                    balance += i.amount
+            if any(i not in self.utxo[sender_address] for i in inputs):
+                print('eskasa edw')
+                return False
+
+            balance = sum(i.amount for i in inputs)
 
             if balance < amount:
                 print('eskasa edw omws')
                 return False
 
             # all inputs and the amount are valid, remove them from local utxo dict
-            self.utxo[sender_address] = [i for i in self.utxo[sender_address] if i not in inputs]
+            self.utxo[sender_address] = UtilizableList(i for i in self.utxo[sender_address] if i not in inputs)
 
             ### step 3: calculate utxo
             self.utxo[sender_address].append(incoming_transaction.utxo[0])
@@ -198,7 +169,7 @@ class Node(object):
     def add_transaction(self, transaction):
         with add_transaction_lock:
             if not self.validate_transaction(transaction):
-                print('Couldn\'t validate transaction')
+                print("Couldn't validate transaction")
                 return
 
             self.transaction_pool.append(transaction)
@@ -207,20 +178,18 @@ class Node(object):
 
     def calculate_utxo(self, blockchain):
         backup_utxo = deepcopy(self.utxo)
-        self.utxo = defaultdict(list)
+        self.utxo = defaultdict(UtilizableList)
 
         genesis_block = blockchain[0]
         genesis_transaction = genesis_block.transactions[0]
 
         self.utxo[genesis_transaction.recipient_address].append(genesis_transaction.utxo[1])
 
-        for block in blockchain[1:]:
-            for t in block.transactions:
-                if not self.validate_transaction(t):
-                    self.utxo = backup_utxo
-                    return False
+        if all(self.validate_transaction(t) for b in blockchain[1:] for t in b.transactions):
+            return True
 
-        return True
+        self.utxo = backup_utxo
+        return False
 
     def print_chain(self):
         print('GenesisBlock ->', end='')
@@ -234,15 +203,11 @@ class Node(object):
 
     # Consensus Methods
 
-    def validate_chain(self, blockchain):
-        if not isinstance(blockchain[0], GenesisBlock):
+    def validate_chain(self, chain):
+        if not isinstance(chain[0], GenesisBlock):
             return False
 
-        if not all(self.validate_block(block, blockchain[i].current_hash) 
-                                       for i, block in enumerate(blockchain[1:])):
-            return False
-
-        return True
+        return all(self.validate_block(b, p.current_hash) for b, p in zip(chain[1:], chain))
 
     @property
     def blockchain_length(self):
@@ -252,26 +217,18 @@ class Node(object):
     def blockchain_diff(self, hashes):
         with blockchain_lock:
             my_hashes = [b.current_hash for b in self.blockchain]
-            for i, (my_hash, other_hash) in enumerate(zip(my_hashes, hashes)):
-                if my_hash != other_hash:
-                    break
+            diffs = (i for i, h1, h2 in zip(count(), my_hashes, hashes) if h1 != h2)
+            cut = next(diffs, len(my_hashes))
 
-            return self.blockchain[i:].to_dict(append='current_hash', append_rec='signature')
+            return self.blockchain[cut:].to_dict(append='current_hash', append_rec='signature')
 
     def resolve_conflicts(self):
         ### step 1: ask for blockchain length
         responses = self.broadcast(None, cfg.BLOCKCHAIN_LENGTH, 'GET')
-        length = len(self.blockchain)
-        dominant_node = None
+        dominant_length, dominant_node = max([(r.json(), r.url) for r in responses], key=itemgetter(0))
 
-        for r in responses:
-            curr_length = r.json()
-
-            if curr_length > length:
-                length = curr_length
-                dominant_node = r.url
-
-        if dominant_node is None:
+        # do nothing if there is no clear winner
+        if dominant_length <= len(self.blockchain):
             return False
 
         ### step 2: send list of blockchain hashes to dominant node
@@ -280,7 +237,7 @@ class Node(object):
         r = requests.post(dominant_node + cfg.BLOCKCHAIN_HASHES, json=blockchain_hashes)
 
         ### step 3: get correct chain
-        new_blocks = UtilizableList([Block(**b) for b in r.json()])
+        new_blocks = [Block(**b) for b in r.json()]
         cut = new_blocks[0].index
         tmp_blockchain = deepcopy(self.blockchain[:cut]) + new_blocks
 
@@ -289,43 +246,29 @@ class Node(object):
             return False
 
         ### step 5: calculate utxo and, if everything ok, update blockchain
-        if self.calculate_utxo(tmp_blockchain):
-            # add transactions that would be purged by blockchain replacement
-            my_transactions = UtilizableList()
-            for b in self.blockchain[cut:]:
-                my_transactions += b.transactions
+        if not self.calculate_utxo(tmp_blockchain):
+            return False
 
-            new_transactions = UtilizableList()
-            for b in new_blocks:
-                new_transactions += b.transactions
+        # add transactions that would be purged by blockchain replacement
+        my_transactions = [t for b in self.blockchain[cut:] for t in b.transactions]
+        new_transactions = [t for b in new_blocks for t in b.transactions]
+        with add_transaction_lock:
+            self.transaction_pool += [t for t in my_transactions if t not in new_transactions]
 
-            # new_transactions = set(new_transactions)
-            diff = UtilizableList(
-                [t for t in my_transactions if t not in new_transactions]
-            )
+        # replace blockchain
+        with blockchain_lock:
+            self.blockchain = tmp_blockchain
 
-            with add_transaction_lock:
-                self.transaction_pool += diff
-
-            # replace blockchain
-            with blockchain_lock:
-                self.blockchain = tmp_blockchain
-
-            return True
-
-        return False
+        return True
 
     def fix_transaction_pool(self):
-        blockchain_transactions = []
-        for b in self.blockchain:
-            blockchain_transactions += b.transactions
-        # blockchain_transactions = set(blockchain_transactions)
+        blockchain_transactions = [t for b in self.blockchain for t in b.transactions]
 
         with add_transaction_lock:
-            self.transaction_pool = UtilizableList([
+            self.transaction_pool = UtilizableList(
                 t for t in self.transaction_pool
                 if t not in blockchain_transactions
-            ])
+            )
 
 class BootstrapNode(Node):
     """
@@ -338,12 +281,10 @@ class BootstrapNode(Node):
 
         # bootstrap node ID is always 0
         self.node_id = 0
-        
-        from itertools import count
         self.node_ids = count(start=1)
 
         genesis_transaction = Transaction(
-            inputs=[],
+            inputs=UtilizableList(),
             sender_address=0,
             recipient_address=self.wallet.address,
             amount=100*cfg.NODES
@@ -362,8 +303,8 @@ class BootstrapNode(Node):
         #checking his wallet and ip:port address
         #bootstrap node informs all other nodes and gives the request node an id and 100 NBCs
 
-        for i, (full_addr, wallet_addr) in enumerate(self.ring):
-            if full_addr == full_address or wallet_addr == wallet_address:
+        for i, (f, w) in enumerate(self.ring):
+            if f == full_address or w == wallet_address:
                 return i
         
         self.ring.append((full_address, wallet_address))
@@ -384,7 +325,7 @@ class SimpleNode(Node):
             }
         r = requests.post('http://' + cfg.BOOTSTRAP_ADDRESS + cfg.GET_ID, data=data)
 
-        if r.status_code == 200:
+        if r.status_code == requests.codes.ok:
             received_data = r.json()
             
             self.node_id = received_data['id']
