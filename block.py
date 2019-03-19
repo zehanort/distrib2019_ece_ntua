@@ -11,6 +11,8 @@ class Block(Utilizable):
         self.__dict__.update(data)
         if 'transactions' in data and not isinstance(data['transactions'], UtilizableList):
             self.transactions = UtilizableList([Transaction(**t) for t in self.transactions])
+
+        self.local = False
         
     def hash(self, set_own=False, **kwargs):
         block_hash = super().hash(**kwargs)

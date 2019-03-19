@@ -59,7 +59,8 @@ class Node(object):
                 index=last_block.index+1,
                 previous_hash=last_block.current_hash,
                 transactions=self.transaction_pool[:cfg.CAPACITY],
-                nonce=0
+                nonce=0,
+                local=True
             )
 
             # count mining time
@@ -104,7 +105,8 @@ class Node(object):
                         cfg.end_time = time()
                     
                     self.fix_transaction_pool(validate=False)
-                
+                elif incoming_block.local:
+                    continue
                 elif self.resolve_conflicts():
                     # if resolve_conflicts is True, then at least a block was added
                     cfg.end_time = time()
