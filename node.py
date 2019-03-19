@@ -16,12 +16,14 @@ blockchain_lock = Lock()
 add_transaction_lock = Lock()
 mining_lock = Lock()
 
-class Node:
-    def __init__(self, address, node_id=None):
+class Node(object):
+    """
+    Base node class, NOT MEANT to be used directly
+    """
+    def __init__(self, address):
         # ring: list of (full_address, wallet_address)
         self.ring = []
 
-        self.node_id = node_id
         self.blockchain = None
         self.last_block = None
 
@@ -34,67 +36,7 @@ class Node:
         # key: wallet address, value: list of utxo for key
         self.utxo = defaultdict(list)
 
-        # Am I the bootstrap node?
-        if cfg.is_bootstrap(address):
-            self.bootstrap_init()
-        else:
-            self.node_init()
-
     #  Node Methods
-
-    def bootstrap_init(self):
-        from itertools import count
-        self.node_ids = count(start=1)
-
-        genesis_transaction = Transaction(
-            inputs=[],
-            sender_address=0,
-            recipient_address=self.wallet.address,
-            amount=100*cfg.NODES
-        )
-        _, genesis_utxo = genesis_transaction.utxo
-        self.utxo[self.wallet.address].append(genesis_utxo)
-
-        genesis_block = GenesisBlock(genesis_transaction)
-        self.blockchain = UtilizableList([genesis_block])
-        # node_id is the index of the node in ring list
-        self.ring = [(self.address, self.wallet.address)]
-
-    def node_init(self):
-        # request my id from bootstrap
-        data = {
-            'inet_address'   : self.address,
-            'wallet_address' : self.wallet.address
-            }
-        r = requests.post('http://' + cfg.BOOTSTRAP_ADDRESS + cfg.GET_ID, data=data)
-
-        if r.status_code == 200:
-            received_data = r.json()
-            
-            self.node_id = received_data['id']
-            self.blockchain = UtilizableList(
-                [GenesisBlock.parse(received_data['genesis_block'])]
-            )
-
-            self.validate_chain(self.blockchain)
-            self.calculate_utxo(self.blockchain)
-
-            if 'ring' in received_data:
-                self.ring = [tuple(i) for i in received_data['ring']]
-        else:
-            raise RuntimeError('Could not get ID from bootstrap node')
-
-    def register_node_to_ring(self, full_address, wallet_address):
-        #add this node to the ring, only the bootstrap node can add a node to the ring after
-        #checking his wallet and ip:port address
-        #bootstrap node informs all other nodes and gives the request node an id and 100 NBCs
-
-        for i, (full_addr, wallet_addr) in enumerate(self.ring):
-            if full_addr == full_address or wallet_addr == wallet_address:
-                return i
-        
-        self.ring.append((full_address, wallet_address))
-        return next(self.node_ids)
 
     def broadcast(self, message, dest_url, method, blacklist=[]):
         responses = []
@@ -178,9 +120,9 @@ class Node:
                     if self.resolve_conflicts():
                         self.fix_transaction_pool()
 
-                        self.transaction_pool = UtilizableList([t for t in self.transaction_pool if self.validate_transaction(t)])
-
-                # self.fix_transaction_pool()
+                        self.transaction_pool = UtilizableList(
+                            [t for t in self.transaction_pool if self.validate_transaction(t)]
+                        )
 
         self.mine_block()
 
@@ -384,3 +326,76 @@ class Node:
                 t for t in self.transaction_pool
                 if t not in blockchain_transactions
             ])
+
+class BootstrapNode(Node):
+    """
+    A special node that is responsible for the NBC network initialization
+    (just a simple node after initialization is done)
+    """
+    def __init__(self, address):
+        
+        super(BootstrapNode, self).__init__(address)
+
+        # bootstrap node ID is always 0
+        self.node_id = 0
+        
+        from itertools import count
+        self.node_ids = count(start=1)
+
+        genesis_transaction = Transaction(
+            inputs=[],
+            sender_address=0,
+            recipient_address=self.wallet.address,
+            amount=100*cfg.NODES
+        )
+        _, genesis_utxo = genesis_transaction.utxo
+        self.utxo[self.wallet.address].append(genesis_utxo)
+
+        genesis_block = GenesisBlock(genesis_transaction)
+        self.blockchain = UtilizableList([genesis_block])
+
+        # node_id is the index of the node in ring list
+        self.ring = [(self.address, self.wallet.address)]
+
+    def register_node_to_ring(self, full_address, wallet_address):
+        #add this node to the ring, only the bootstrap node can add a node to the ring after
+        #checking his wallet and ip:port address
+        #bootstrap node informs all other nodes and gives the request node an id and 100 NBCs
+
+        for i, (full_addr, wallet_addr) in enumerate(self.ring):
+            if full_addr == full_address or wallet_addr == wallet_address:
+                return i
+        
+        self.ring.append((full_address, wallet_address))
+        return next(self.node_ids)
+
+class SimpleNode(Node):
+    """
+    A simple node of the NBC network
+    """
+    def __init__(self, address):
+
+        super(SimpleNode, self).__init__(address)
+
+        # request my id from bootstrap
+        data = {
+            'inet_address'   : self.address,
+            'wallet_address' : self.wallet.address
+            }
+        r = requests.post('http://' + cfg.BOOTSTRAP_ADDRESS + cfg.GET_ID, data=data)
+
+        if r.status_code == 200:
+            received_data = r.json()
+            
+            self.node_id = received_data['id']
+            self.blockchain = UtilizableList(
+                [GenesisBlock.parse(received_data['genesis_block'])]
+            )
+
+            self.validate_chain(self.blockchain)
+            self.calculate_utxo(self.blockchain)
+
+            if 'ring' in received_data:
+                self.ring = [tuple(i) for i in received_data['ring']]
+        else:
+            raise RuntimeError('Could not get ID from bootstrap node')

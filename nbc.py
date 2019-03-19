@@ -109,7 +109,7 @@ if __name__ == '__main__':
 
     if cfg.is_bootstrap(address + ':' + str(port)):
         cfg.NODES = args.nodes
-        node = Node(full_address, 0)
+        node = BootstrapNode(full_address)
         
         ### ROUTES EXCLUSIVE TO BOOTSTRAP NODE ###
 
@@ -158,7 +158,7 @@ if __name__ == '__main__':
         app.run(host='0.0.0.0', port=port, threaded=True)
 
     else:
-        node = Node(full_address)
+        node = SimpleNode(full_address)
 
         @app.route(cfg.GET_RING, methods=['POST'])
         def get_ring():
