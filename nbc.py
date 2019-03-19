@@ -157,9 +157,6 @@ if __name__ == '__main__':
             cfg.CAN_DISTRIBUTE_WEALTH = False
             return 'Distribution of wealth completed successfully!\n', 200
 
-        # bootstrap node serves as frontend, too
-        app.run(host='0.0.0.0', port=port, threaded=True)
-
     else:
         node = SimpleNode(full_address)
 
@@ -168,4 +165,4 @@ if __name__ == '__main__':
             node.ring = [tuple(n) for n in request.get_json()['ring']]
             return 'Node {} received ring'.format(node.node_id), 200
 
-        app.run(host=address, port=port, threaded=True)
+    app.run(host=address, port=port, threaded=True)
