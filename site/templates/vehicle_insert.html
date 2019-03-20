@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}"/>
+</head>
+<body>
+
+<div id="my_navbar" class="navbar">
+  <a href="http://localhost:5000/">Home</a>
+  <div class="dropdown">
+    <button class="dropbtn">Nodes</button>
+    <div class="dropdown-content">
+
+      {% for addr in addresses %}
+      <a href="{{ 'http://%s'%addr }}">Node {{ loop.index - 1 }}</a>
+      {% endfor %}
+
+    </div>
+  </div>
+  <div class="dropdown">
+    <button class="dropbtn">Queries</button>
+    <div class="dropdown-content">
+      <a href="http://localhost:5000/query1/">Running rentals info</a>
+    </div>
+  </div>
+  <div class="dropdown">
+    <button class="dropbtn">Tables</button>
+    <div class="dropdown-content">
+      <a href="http://localhost:5000/customers/">Customers</a>
+    </div>
+  </div>
+</div>
+
+<h1>{{ title }}</h1>
+    <form action = "http://localhost:5000/vehicles/insert/success/" method="POST">
+        License Plate:<br>
+        <input type="text" name = "lp" required><br><br>
+        Vehicle Type:<br>
+        <select name="vtype">
+            {% for vtype in vtypes %}
+            <option value="{{ vtype }}">{{ vtype }}</option>
+            {% endfor %}
+        </select><br><br>
+        Color:<br>
+        <input type="text" name = "color" required><br><br>
+        Brand:<br>
+        <input type="text" name = "brand" required><br><br>
+        Model:<br>
+        <input type="text" name = "model" required><br><br>
+        Fuel Type:<br>
+        <select name="ftype">
+            {% for ftype in ftypes %}
+            <option value="{{ ftype }}">{{ ftype }}</option>
+            {% endfor %}
+        </select><br><br>
+        Cylinder Capacity:<br>
+        <input type="text" name = "cc" required><br><br>
+        Horse Power:<br>
+        <input type="text" name = "hp" required><br><br>
+        Damages (optional):<br>
+        <textarea name = "dmg" cols="50" rows="5"></textarea><br><br>
+        Malfunctions (optional):<br>
+        <textarea name = "mal" cols="50" rows="5"></textarea><br><br>
+        Kilometers:<br>
+        <input type="text" name = "km" required><br><br>
+        Last Service (optional, formatted as YYYY-MM-DD HH:MM:SS):<br>
+        <input type="text" name = "ls"><br><br>
+        Next Service (formatted as YYYY-MM-DD HH:MM:SS):<br>
+        <input type="text" name = "ns" required><br><br>
+        Insurance Expiration Date (formatted as YYYY-MM-DD):<br>
+        <input type="text" name = "ied" required><br><br>
+        Responsible Store:<br>
+        <select name="store">
+            {% for store in stores %}
+                <option value="{{ store }}">{{ store }}</option>
+            {% endfor %}
+        </select><br><br>
+        <input type = "submit" value = "Submit"/>
+        <input type="reset">
+        <br><br>
+    </form>
+</body>
+</html>

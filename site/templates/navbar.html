@@ -1,0 +1,36 @@
+<div id="my_navbar" class="navbar">
+  <a href="http://localhost:5000/">Home</a>
+  <div class="dropdown">
+    <button class="dropbtn">Nodes</button>
+    <div class="dropdown-content">
+
+      {% for node, addr in enumerate(addresses) %}
+      <a href="{{ 'http://%s'%addr }}">Node {{ node }}</a>
+      {% endfor %}
+
+    </div>
+  </div>
+  <div class="dropdown">
+    <button class="dropbtn">Queries</button>
+    <div class="dropdown-content">
+      <a href="http://localhost:5000/query1/">Running rentals info</a>
+      <a href="http://localhost:5000/query2/">Upcoming pickups</a>
+      <a href="http://localhost:5000/query3/">Complete customer list</a>
+      <a href="http://localhost:5000/query4/">Total amount paid per customer</a>
+      <a href="http://localhost:5000/query5/">Number of vehicles per store</a>
+      <a href="http://localhost:5000/query10/">Number of available vehicles per store</a>
+      <a href="http://localhost:5000/query9/">Most popular vehicle models</a>
+      <a href="http://localhost:5000/query8/">Least used vehicles per type</a>
+      <a href="http://localhost:5000/query7/">Vehicles with upcoming service</a>
+      <a href="http://localhost:5000/query6/">Number of employees per store</a>
+    </div>
+  </div>
+  <div class="dropdown">
+    <button class="dropbtn">Tables</button>
+    <div class="dropdown-content">
+      <a href="http://localhost:5000/customers/">Customers</a>
+      <a href="http://localhost:5000/reservations/">Reservations</a>
+      <a href="http://localhost:5000/vehicles/">Vehicles</a>
+    </div>
+  </div>
+</div>

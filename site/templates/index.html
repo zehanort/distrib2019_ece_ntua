@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.2/gh-fork-ribbon.min.css"/>
+</head>
+<body>
+
+<a class="github-fork-ribbon" href="https://url.to-your.repo" data-ribbon="Fork me on GitHub" title="Fork me on GitHub">Fork me on GitHub</a>
+
+<div class="wrapper">
+
+<div id="my_navbar" class="navbar">
+  <a href="{{ url_for('index') }}">Home</a>
+  <div class="dropdown">
+    <button class="dropbtn">Nodes</button>
+    <div class="dropdown-content">
+
+      {% for n in range(nodes) %}
+      <a href="{{ url_for('node_info', node=n) }}">Node {{ n }}</a>
+      {% endfor %}
+
+    </div>
+  </div>
+  <div class="dropdown">
+    <button class="dropbtn">Queries</button>
+    <div class="dropdown-content">
+      <a href="http://localhost:5000/query1/">Running rentals info</a>
+    </div>
+  </div>
+  <div class="dropdown">
+    <button class="dropbtn">Tables</button>
+    <div class="dropdown-content">
+      <a href="http://localhost:5000/customers/">Customers</a>
+    </div>
+  </div>
+</div>
+
+	<br><br><br><br><br><br><hr>
+    	<h1>The NoobCoin Adaptive Architecture Framework</h1>
+    	<hr>
+    	<h2><i>Transferring money for noobs since 2019</i></h2>
+	<hr>
+<div>
+	<footer><b>Development Team:</b><br>
+	Sotirios Niarchos, 03114076, sot.niarchos@gmail.com<br>
+    George Papadopoulos, 03114061, george.2pa@gmail.com<br>
+    Nikolaos Patris, 03114861, nikpatris@gmail.com<br>
+    </footer>
+</div>
+</div>
+
+<footer-ado>
+<td width="45">
+    <font size="1" face="Arial, Helvetica, sans-serif"><a href="http://www.adobe.com/acrobat/readstep.html">
+        <img src = {{ url_for('static', filename='getacro.gif') }} border = 0 align="absmiddle"></a></font></td>
+      <td width="233"> <p><font size=2 face="Arial, Helvetica, sans-serif">Get Adobe Reader <a href="http://www.adobe.com/acrobat/readstep.html">Here.</a></font> </p>
+      </td>
+</footer-ado>
+
+</body>
+</html>

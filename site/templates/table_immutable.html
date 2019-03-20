@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}"/>
+</head>
+<body>
+
+<div class="wrapper">
+
+<div id="my_navbar" class="navbar">
+  <a href="{{ url_for('index') }}">Home</a>
+  <div class="dropdown">
+    <button class="dropbtn">Nodes</button>
+    <div class="dropdown-content">
+
+      {% for n in range(nodes) %}
+      <a href="{{ url_for('node_info', node=n) }}">Node {{ n }}</a>
+      {% endfor %}
+
+    </div>
+  </div>
+  <div class="dropdown">
+    <button class="dropbtn">Queries</button>
+    <div class="dropdown-content">
+      <a href="http://localhost:5000/query1/">Running rentals info</a>
+    </div>
+  </div>
+  <div class="dropdown">
+    <button class="dropbtn">Tables</button>
+    <div class="dropdown-content">
+      <a href="http://localhost:5000/customers/">Customers</a>
+    </div>
+  </div>
+</div>
+
+<h1>{{ title }}</h1>
+
+<table>
+	<tr>
+		{% for col_name in col_names %}
+		<th>{{ col_name }}</th>
+		{% endfor %}
+	</tr>
+	<tr>
+		{% for row in rows %}
+		<tr>
+			{% for element in row %}
+			<td>{{ element }}</td>
+			{% endfor %}
+		</tr>
+		{% endfor %}
+	</tr>
+</table>
+
+</div>
+
+</body>
+</html>
