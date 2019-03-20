@@ -11,29 +11,15 @@
 <div class="wrapper">
 
 <div id="my_navbar" class="navbar">
-  <a href="{{ url_for('index') }}">Home</a>
-  <div class="dropdown">
+    <a href="{{ url_for('index') }}">Home</a>
+    <div class="dropdown">
     <button class="dropbtn">Nodes</button>
-    <div class="dropdown-content">
-
-      {% for n in range(nodes) %}
-      <a href="{{ url_for('node_info', node=n) }}">Node {{ n }}</a>
-      {% endfor %}
-
+        <div class="dropdown-content">
+            {% for n in range(nodes) %}
+            <a href="{{ url_for('node_info', node=n) }}">Node {{ n }}</a>
+            {% endfor %}
+        </div>
     </div>
-  </div>
-  <div class="dropdown">
-    <button class="dropbtn">Queries</button>
-    <div class="dropdown-content">
-      <a href="http://localhost:5000/query1/">Running rentals info</a>
-    </div>
-  </div>
-  <div class="dropdown">
-    <button class="dropbtn">Tables</button>
-    <div class="dropdown-content">
-      <a href="http://localhost:5000/customers/">Customers</a>
-    </div>
-  </div>
 </div>
 
 	<br><br><br><br><br><br><hr>

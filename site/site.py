@@ -1,10 +1,11 @@
-from flask import Flask, redirect, request, url_for, render_template
+from flask import Flask, flash, redirect, request, url_for, render_template
 import requests
 import sys
 sys.path.append('..')
 import cfg
 
 app = Flask(__name__)
+app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
 
 ring = requests.get('http://' + cfg.BOOTSTRAP_ADDRESS + cfg.RING).json()
 n_nodes = len(ring)
@@ -16,13 +17,37 @@ def index():
     return render_template('index.html', nodes=n_nodes)
 
 @app.route('/<int:node>', methods=['GET'])
-def node_info(node):
-    title = 'Current wallet amount of node ' + str(node) + ':'
-    balance = requests.get('http://' + addresses[node] + cfg.WALLET_BALANCE).json()
-    return render_template('node.html', nodes=n_nodes, title=title, balance=balance)
+def node_info(node, transaction_completed=False):
+    return render_template('node.html', n=node, nodes=n_nodes, message=transaction_completed)
+
+@app.route('/<int:node>/wallet/balance', methods=['GET'])
+def wallet_balance(node):
+    balance = requests.get('http://' + addresses[node] + cfg.WALLET_BALANCE).json()   
+    return render_template('wallet_balance.html', n=node, nodes=n_nodes, balance=balance)
+
+@app.route('/<int:node>/transaction/new', methods=['GET', 'POST'])
+def make_transaction(node):
+
+    if request.method == 'GET':
+        return render_template('make_transaction.html',
+            n=node,
+            nodes=n_nodes,
+            recipients=[n for n in range(n_nodes) if node != n]
+        )
+
+    elif request.method == 'POST':
+        recipient_id = int(request.form['node_id'])
+        amount = request.form['amount']
+
+        data = {
+        'recipient_address' : wallets[recipient_id],
+        'amount' : int(amount)
+        }
+        r = requests.post('http://' + addresses[node] + cfg.CREATE_TRANSACTION, json=data)
+        return redirect(url_for('node_info', node=node, transaction_completed=True))
 
 @app.route('/<int:node>/bc', methods=['GET'])
-def print_blockchain(node):
+def view_blockchain(node):
 
     # get ring from bootstrap
     node_inet_address = addresses[0]
@@ -33,10 +58,6 @@ def print_blockchain(node):
     bc_table = [[b[a] for a in col_names] for b in bc]
     title = 'Blockchain of node ' + str(node)
 
-    return render_template('table_immutable.html', title=title, addresses=addresses, col_names=col_names, rows=bc_table)
-
-@app.route('/trolia', methods=['GET'])
-def trolia():
-    return render_template('vehicle_insert.html', vtypes=['type1', 'deadpool', 'redbool'])
+    return render_template('table_immutable.html', title=title, nodes=n_nodes, col_names=col_names, rows=bc_table)
 
 app.run(host='0.0.0.0', debug=True)

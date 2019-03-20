@@ -8,37 +8,42 @@
 <div class="wrapper">
 
 <div id="my_navbar" class="navbar">
-  <a href="{{ url_for('index') }}">Home</a>
-  <div class="dropdown">
+    <a href="{{ url_for('index') }}">Home</a>
+    <div class="dropdown">
     <button class="dropbtn">Nodes</button>
-    <div class="dropdown-content">
-
-      {% for n in range(nodes) %}
-      <a href="{{ url_for('node_info', node=n) }}">Node {{ n }}</a>
-      {% endfor %}
-
+        <div class="dropdown-content">
+            {% for n in range(nodes) %}
+            <a href="{{ url_for('node_info', node=n) }}">Node {{ n }}</a>
+            {% endfor %}
+        </div>
     </div>
-  </div>
-  <div class="dropdown">
-    <button class="dropbtn">Queries</button>
-    <div class="dropdown-content">
-      <a href="http://localhost:5000/query1/">Running rentals info</a>
-    </div>
-  </div>
-  <div class="dropdown">
-    <button class="dropbtn">Tables</button>
-    <div class="dropdown-content">
-      <a href="http://localhost:5000/customers/">Customers</a>
-    </div>
-  </div>
 </div>
 
-<br><br><br><br><br><br><br><br>
+{% if message %}
+<h5><b>Transaction successfully created!</b></h5>
+{% endif %}
+
+<h1>Select action for node {{ n }}</h1>
+
+<!-- Three buttons in a group -->
+    <form action="{{ url_for('wallet_balance', node=n) }}">
+      <button type="submit" class="block"><h5>Current wallet balance</h5></button> 
+    </form>
+    <br>
+    <form action="{{ url_for('make_transaction', node=n) }}">
+      <button type="submit" class="block"><h5>Make a transaction</h5></button> 
+    </form>
+    <br>
+    <form action="{{ url_for('view_blockchain', node=n) }}">
+      <button type="submit" class="block"><h5>View local version of blockchain</h5></button> 
+    </form>
+
+<!-- <br><br><br><br><br><br><br><br>
 <h1>{{ title }}</h1>
 <hr><hr>
 <h2>{{ balance }} NBC</h2>
 <hr><hr>
-
+ -->
 </div>
 
 </body>

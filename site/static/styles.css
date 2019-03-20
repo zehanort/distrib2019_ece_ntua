@@ -48,8 +48,10 @@ h1, h2, h4 {
 }
 
 h5 {
-	color: #724;
-	text-align: left;
+    font-family: fantasy;
+    font-size: 30px;
+    color: #724;
+    text-align: center;
 }
 
 footer {
@@ -100,6 +102,10 @@ tr:nth-child(odd) {
 
 tr:nth-child(even) {
     background-color: rgb(70, 160, 120);
+}
+
+button:hover {
+    background-color: grey;
 }
 
 .navbar {
@@ -155,4 +161,62 @@ tr:nth-child(even) {
 
 .dropdown:hover .dropdown-content {
     display: block;
+}
+
+.btn-group {
+   margin: 0 auto;
+   display: block;
+}
+
+.block {
+  width: 80%;
+  border: none;
+  background-color: #4CAF50;
+  padding: 0px 0px;
+  cursor: pointer;
+  text-align: center;
+  border-radius: 20px;
+}
+
+
+.btn-toolbar {
+  margin-left:-5px;
+}
+
+.container {
+  margin-right:auto;
+  margin-left:auto;
+  padding-left:15px;
+  padding-right:15px;
+  text-align:center;
+  align-content:center;
+}
+
+.btn-toolbar .btn {
+  width: 80%;
+  border: none;
+  background-color: #4CAF50;
+  padding: 0px 0px;
+  cursor: pointer;
+  text-align: center;
+  border-radius: 20px;   
+}
+
+.btn-toolbar .btn-group, .btn-toolbar .input-group {
+  text-align:center;
+  align-content:center;
+}
+
+.btn-group {
+   margin:0 auto;
+   display:block;
+
+.btn-toolbar > .btn, .btn-toolbar > .btn-group, .btn-toolbar > .input-group {
+  margin-left:5px;
+}
+
+.btn-group, .btn-group-vertical {
+  position:relative;
+  display:inline-block;
+  vertical-align:middle;
 }

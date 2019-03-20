@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}"/>
+</head>
+<body>
+
+<div class="wrapper">
+
+<div id="my_navbar" class="navbar">
+    <a href="{{ url_for('index') }}">Home</a>
+    <div class="dropdown">
+    <button class="dropbtn">Nodes</button>
+        <div class="dropdown-content">
+            {% for n in range(nodes) %}
+            <a href="{{ url_for('node_info', node=n) }}">Node {{ n }}</a>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<h1>Make a transaction from node {{ n }}</h1>
+<hr>
+    <form action="{{ url_for('make_transaction', node=n) }}" method="POST">
+        To:<br>
+        <select name="node_id" style="width:120px; text-align:center;">
+            {% for node in recipients %}
+            <option value="{{ node }}">{{ 'node %d'%node }}</option>
+            {% endfor %}
+        </select><br><br>
+        Amount:<br>
+        <input type="text" name="amount" required><br><br>
+        <input type ="submit" value ="Send money!"/>
+        <input type="reset">
+    </form>
+<hr>
+</div>
+
+</body>
+</html>

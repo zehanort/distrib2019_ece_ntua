@@ -19,24 +19,11 @@
     </div>
 </div>
 
-<h1>{{ title }}</h1>
-
-<table>
-	<tr>
-		{% for col_name in col_names %}
-		<th>{{ col_name }}</th>
-		{% endfor %}
-	</tr>
-	<tr>
-		{% for row in rows %}
-		<tr>
-			{% for element in row %}
-			<td>{{ element }}</td>
-			{% endfor %}
-		</tr>
-		{% endfor %}
-	</tr>
-</table>
+<br><br><br><br><br><br><br><br>
+<h1>Current wallet balance for node {{ n }}</h1>
+<hr><hr>
+<h2>{{ balance }} NBC</h2>
+<hr><hr>
 
 </div>
 
