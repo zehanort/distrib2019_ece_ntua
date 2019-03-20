@@ -17,8 +17,8 @@ def index():
     return render_template('index.html', nodes=n_nodes)
 
 @app.route('/<int:node>', methods=['GET'])
-def node_info(node, transaction_completed=False):
-    return render_template('node.html', n=node, nodes=n_nodes, message=transaction_completed)
+def node_info(node):
+    return render_template('node.html', n=node, nodes=n_nodes)
 
 @app.route('/<int:node>/wallet/balance', methods=['GET'])
 def wallet_balance(node):
@@ -44,7 +44,8 @@ def make_transaction(node):
         'amount' : int(amount)
         }
         r = requests.post('http://' + addresses[node] + cfg.CREATE_TRANSACTION, json=data)
-        return redirect(url_for('node_info', node=node, transaction_completed=True))
+        flash('Transaction successfully created!')
+        return redirect(url_for('node_info', node=node))
 
 @app.route('/<int:node>/bc', methods=['GET'])
 def view_blockchain(node):
