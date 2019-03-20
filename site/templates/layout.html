@@ -7,6 +7,9 @@
     {% endblock %}
   </head>
   <body>
+
+<div class="wrapper">
+
 <div id="my_navbar" class="navbar">
     <a href="{{ url_for('index') }}">Home</a>
     <div class="dropdown">
@@ -17,4 +20,20 @@
             {% endfor %}
         </div>
     </div>
+
+    <div class="dropdown">
+    <button class="dropbtn">Administration</button>
+        <div class="dropdown-content">
+            <a href="{{ url_for('init') }}">Initialize NBC network</a>
+            <a href="{{ url_for('run_test') }}">Testing</a>
+            <a href="{{ url_for('view_stats') }}">Statistics</a>           
+        </div>
+    </div>
+
 </div>
+
+{% block content %}{% endblock %}
+
+</div>
+</body>
+</html>

@@ -1,5 +1,4 @@
 from flask import Flask, jsonify, request, render_template
-from flask_cors import CORS
 
 import cfg
 import requests
@@ -14,7 +13,6 @@ from threading import Thread, Lock
 assign_id_lock = Lock()
 
 app = Flask(__name__)
-CORS(app)
 
 # node will be defined later (bootstrap or simple)
 node = None

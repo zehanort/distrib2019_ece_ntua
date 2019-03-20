@@ -37,7 +37,7 @@ if __name__ == '__main__':
     if nodes != 5 and nodes != 10 and nodes != 3:
         usage()
 
-    tests_dir = '../transactions/' + str(nodes) + 'nodes/'
+    tests_dir = '../testing/' + str(nodes) + 'nodes/'
 
     transaction_threads = []
 

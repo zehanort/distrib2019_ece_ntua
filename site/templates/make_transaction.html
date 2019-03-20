@@ -1,25 +1,12 @@
-<!DOCTYPE html>
-<html>
-<head>
-<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}"/>
-</head>
-<body>
+{% extends "layout.html" %}
 
-<div class="wrapper">
+{% block title %}NBC - Node {{ n }} transaction{% endblock %}
 
-<div id="my_navbar" class="navbar">
-    <a href="{{ url_for('index') }}">Home</a>
-    <div class="dropdown">
-    <button class="dropbtn">Nodes</button>
-        <div class="dropdown-content">
-            {% for n in range(nodes) %}
-            <a href="{{ url_for('node_info', node=n) }}">Node {{ n }}</a>
-            {% endfor %}
-        </div>
-    </div>
-</div>
+{% block head %}{{ super() }}{% endblock %}
 
+{% block content %}
 <h1>Make a transaction from node {{ n }}</h1>
+<h5>(current wallet balance: {{ balance }} NBC)</h5>
 <hr>
     <form action="{{ url_for('make_transaction', node=n) }}" method="POST">
         To:<br>
@@ -34,7 +21,4 @@
         <input type="reset">
     </form>
 <hr>
-</div>
-
-</body>
-</html>
+{% endblock %}

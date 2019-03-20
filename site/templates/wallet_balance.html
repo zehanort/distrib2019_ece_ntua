@@ -1,31 +1,13 @@
-<!DOCTYPE html>
-<html>
-<head>
-<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}"/>
-</head>
-<body>
+{% extends "layout.html" %}
 
-<div class="wrapper">
+{% block title %}NBC - Node {{ n }} wallet{% endblock %}
 
-<div id="my_navbar" class="navbar">
-    <a href="{{ url_for('index') }}">Home</a>
-    <div class="dropdown">
-    <button class="dropbtn">Nodes</button>
-        <div class="dropdown-content">
-            {% for n in range(nodes) %}
-            <a href="{{ url_for('node_info', node=n) }}">Node {{ n }}</a>
-            {% endfor %}
-        </div>
-    </div>
-</div>
+{% block head %}{{ super() }}{% endblock %}
 
+{% block content %}
 <br><br><br><br><br><br><br><br>
 <h1>Current wallet balance for node {{ n }}</h1>
 <hr><hr>
 <h2>{{ balance }} NBC</h2>
 <hr><hr>
-
-</div>
-
-</body>
-</html>
+{% endblock %}

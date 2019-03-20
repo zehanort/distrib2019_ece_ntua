@@ -1,0 +1,20 @@
+{% extends "layout.html" %}
+
+{% block title %}NBC - Testing{% endblock %}
+
+{% block head %}{{ super() }}{% endblock %}
+
+{% block content %}
+<h1>Run a diagnostic test for a {{ nodes }}-node NBC network:</h1>
+<hr><br>
+  <form action="{{ url_for('run_test', marxify=True) }}" method="POST">
+    <button type="submit" class="block" onclick="alert('Testing initialized')">
+      <h5>Run test WITH initial distribution of wealth</h5></button>
+  </form>
+  <br>
+  <form action="{{ url_for('run_test', marxify=False) }}" method="POST">
+    <button type="submit" class="block" onclick="alert('Testing initialized')">
+      <h5>Run test WITHOUT initial distribution of wealth</h5></button> 
+  </form>
+<br><hr>
+{% endblock %}
