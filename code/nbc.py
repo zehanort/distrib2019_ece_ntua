@@ -93,7 +93,7 @@ def shutdown():
     if func is None:
         raise RuntimeError('Not running with the Werkzeug Server')
     func()
-    return 'Server shutting down...'
+    return 'Server shutting down...', 200
 
 if __name__ == '__main__':
     from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter

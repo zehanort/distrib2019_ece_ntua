@@ -131,7 +131,8 @@ def network_init():
 def network_terminate():
     global addresses, ring, n_nodes, wallets
     for address in addresses:
-        requests.get('http://' + address + cfg.TERMINATE)
+        r = requests.get('http://' + address + cfg.TERMINATE)
+        print('[TERMINATE]', address, r.status_code)
     return redirect(url_for('index'))
 
 # testing routes
@@ -158,4 +159,4 @@ def view_stats():
 
     return render_template('stats.html', nodes=n_nodes, throughput=throughput, blocktime=blocktime)
 
-app.run(host='83.212.97.85', port=8080, debug=True)
+app.run(host='83.212.97.85', port=8080, threaded=False, debug=True)
