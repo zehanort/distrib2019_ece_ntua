@@ -1,0 +1,21 @@
+{% extends "layout.html" %}
+
+{% block title %}NBC - Network{% endblock %}
+
+{% block head %}{{ super() }}{% endblock %}
+
+{% block content %}
+<h1>Select one of the actions below:</h1>
+
+{% if running %}
+    <h5 style="color: red;">NBC network is already up and running</h5>
+{% else %}
+    <form action="{{ url_for('network_init') }}">
+      <button type="submit" class="block"><h5>Initialize NBC network</h5></button> 
+    </form>
+{% endif %}
+    <br>
+    <form action="{{ url_for('network_terminate') }}">
+      <button type="submit" class="block"><h5>Terminate NBC network</h5></button> 
+    </form>
+{% endblock %}

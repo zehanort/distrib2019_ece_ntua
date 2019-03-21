@@ -7,14 +7,22 @@
 {% block content %}
 <h1>Run a diagnostic test for a {{ nodes }}-node NBC network:</h1>
 <hr><br>
-  <form action="{{ url_for('run_test', marxify=True) }}" method="POST">
-    <button type="submit" class="block" onclick="alert('Testing initialized')">
-      <h5>Run test WITH initial distribution of wealth</h5></button>
-  </form>
-  <br>
-  <form action="{{ url_for('run_test', marxify=False) }}" method="POST">
-    <button type="submit" class="block" onclick="alert('Testing initialized')">
-      <h5>Run test WITHOUT initial distribution of wealth</h5></button> 
-  </form>
+{% if nodes|int() != 0 %}
+    <form action="{{ url_for('testing') }}" method="POST">
+        <input type="hidden" value="1" name="marxify" />
+        <button type="submit" class="block" onclick="alert('Testing initialized')">
+            <h5>Run test WITH initial distribution of wealth</h5>
+        </button>
+    </form>
+    <br>
+    <form action="{{ url_for('testing') }}" method="POST">
+        <input type="hidden" value="0" name="marxify" />
+        <button type="submit" class="block" onclick="alert('Testing initialized')">
+            <h5>Run test WITHOUT initial distribution of wealth</h5>
+        </button>
+    </form>
+{% else %}
+<h5>A 0-node network is not a network... Can not perform tests!</h5>
+{% endif %}
 <br><hr>
 {% endblock %}

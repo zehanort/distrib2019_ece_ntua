@@ -83,6 +83,16 @@ def get_throughput():
 def get_mining_time():
     return jsonify(cfg.mean_mining_time), 200
 
+### TERMINATING ROUTE
+
+@app.route(cfg.TERMINATE, methods=['GET'])
+def shutdown():
+    func = request.environ.get('werkzeug.server.shutdown')
+    if func is None:
+        raise RuntimeError('Not running with the Werkzeug Server')
+    func()
+    return 'Server shutting down...'
+
 if __name__ == '__main__':
     from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 

@@ -1,6 +1,6 @@
 import requests
 
-BOOTSTRAP_ADDRESS = '192.168.1.187:5000'
+BOOTSTRAP_ADDRESS = '192.168.0.2:5000'
 
 # DIFFICULTY and CAPACITY will be set at runtime
 DIFFICULTY = None
@@ -44,3 +44,19 @@ BLOCKCHAIN_HASHES = '/blockchain/hashes'
 
 THROUGHPUT = '/stats/throughput'
 BLOCK_TIME = '/stats/blocktime'
+
+# needed by the site to initialize network
+
+addresses = [
+    '192.168.0.2'
+    '192.168.0.3'
+    '192.168.0.4'
+    '192.168.0.5'
+    '192.168.0.6'
+]
+start_port = 5000
+key_dir = '~/.ssh/internal'
+nbc_dir = '~/distrib2019_ece_ntua/code/'
+
+# needed by the site to terminate network
+TERMINATE = '/terminate'

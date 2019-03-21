@@ -1,0 +1,21 @@
+{% extends "layout.html" %}
+
+{% block title %}NBC - Node {{ n }} transaction{% endblock %}
+
+{% block head %}{{ super() }}{% endblock %}
+
+{% block content %}
+<h5>Configure the NBC network and initialize it:</h5>
+<hr>
+    <form action="{{ url_for('network_init') }}" method="POST">
+        Nodes in the NBC network:<br>
+        <input type="text" name="n" required><br><br>
+        Mining difficulty:<br>
+        <input type="text" name="d" required><br><br>
+        Block capacity:<br>
+        <input type="text" name="c" required><br><br>
+        <input type ="submit" value ="Initialize network!"/>
+        <input type="reset">
+    </form>
+<hr>
+{% endblock %}
