@@ -131,6 +131,7 @@ def network_init():
 
 @app.route('/network/terminate', methods=['GET'])
 def network_terminate():
+    global addresses, ring, n_nodes, wallets
     for address in addresses:
         requests.get('http://' + address + cfg.TERMINATE)
     ring = None
