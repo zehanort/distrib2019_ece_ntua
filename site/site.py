@@ -4,6 +4,7 @@ import sys
 sys.path.append('../code')
 import cfg
 import subprocess
+from time import sleep
 
 from itertools import count
 from numpy import mean
@@ -124,6 +125,7 @@ def network_init():
                     '{}@{}'.format('user', address),
                     script.format(nbc_dir=cfg.nbc_dir, address=address, port=next(port))
                 ])
+                sleep(1)
             excess -= 1
 
         return redirect(url_for('index'))
