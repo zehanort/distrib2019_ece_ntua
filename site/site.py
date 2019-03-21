@@ -160,4 +160,4 @@ def view_stats():
     
     return render_template('stats.html', nodes=n_nodes, throughput=throughput, blocktime=blocktime)
 
-app.run(host='127.0.0.1', port=8080, debug=True)
+app.run(host='83.212.97.85', port=8080, debug=True)
