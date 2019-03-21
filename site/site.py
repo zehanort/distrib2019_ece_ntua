@@ -133,7 +133,7 @@ def network_terminate():
     for address in addresses:
         r = requests.get('http://' + address + cfg.TERMINATE)
         print('[TERMINATE]', address, r.status_code)
-    return redirect(url_for('index'))
+    return render_template('network.html', nodes=n_nodes, running=False)
 
 # testing routes
 
