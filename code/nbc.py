@@ -19,6 +19,10 @@ node = None
 
 ### ROUTES FOR ALL NBC NETWORK NODES ###
 
+@app.route('/id', methods=['GET'])
+def get_id():
+    return jsonify(node.id), 200
+
 @app.route(cfg.RING, methods=['GET'])
 def get_ring():
     return jsonify(node.ring), 200

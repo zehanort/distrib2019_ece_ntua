@@ -116,13 +116,15 @@ def network_init():
         for address in cfg.addresses:
             port = count(cfg.start_port)
             for i in range(base + bool(excess > 0)):
-                subprocess.Popen(' '.join([
+                p = subprocess.Popen(' '.join([
                     'ssh',
                     '-i', cfg.key_dir,
                     '{}@{}'.format('user', address),
                     script.format(nbc_dir=cfg.nbc_dir, address=address, port=next(port))
-                ]), shell=True)
-                sleep(1)
+                ]), stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+                o, e = p.communicate()
+                while not o and not e:
+                    pass
             excess -= 1
 
         return redirect(url_for('index'))
