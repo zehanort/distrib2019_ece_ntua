@@ -121,10 +121,8 @@ def network_init():
                     '-i', cfg.key_dir,
                     '{}@{}'.format('user', address),
                     script.format(nbc_dir=cfg.nbc_dir, address=address, port=next(port))
-                ]), stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
-                o, e = p.communicate()
-                while not o and not e:
-                    o, e = p.communicate()
+                ]), shell=True)
+                sleep(2.5)
             excess -= 1
 
         return redirect(url_for('index'))
