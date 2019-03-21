@@ -126,7 +126,6 @@ def network_init():
                 ])
             excess -= 1
 
-        site_init()
         return redirect(url_for('index'))
 
 @app.route('/network/terminate', methods=['GET'])
