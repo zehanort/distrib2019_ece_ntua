@@ -27,7 +27,7 @@ def site_init():
 
     try:
         r = requests.get('http://' + cfg.BOOTSTRAP_ADDRESS + cfg.RING)
-    except requests.exceptions.ConnectionError as e:
+    except requests.exceptions.RequestException as e:
         n_nodes = 0
         ring, addresses, wallets = None, None, None
         return False
@@ -132,10 +132,6 @@ def network_terminate():
     global addresses, ring, n_nodes, wallets
     for address in addresses:
         requests.get('http://' + address + cfg.TERMINATE)
-    ring = None
-    n_nodes = 0
-    addresses = None
-    wallets = None
     return redirect(url_for('index'))
 
 # testing routes
