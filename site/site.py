@@ -133,7 +133,10 @@ def network_init():
 def network_terminate():
     for address in addresses:
         requests.get('http://' + address + cfg.TERMINATE)
-    site_init()
+    ring = None
+    n_nodes = 0
+    addresses = None
+    wallets = None
     return redirect(url_for('index'))
 
 # testing routes
