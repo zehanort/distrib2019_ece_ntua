@@ -161,8 +161,8 @@ def view_stats():
     for n in range(n_nodes):
         throughputs.append(requests.get('http://' + addresses[n] + cfg.THROUGHPUT).json())
         blocktimes.append(requests.get('http://' + addresses[n] + cfg.BLOCK_TIME).json())
-    throughput, blocktime = map(mean, [throughputs, blocktimes])    
-    
+    throughput, blocktime = map(mean, [throughputs, blocktimes])
+
     return render_template('stats.html', nodes=n_nodes, throughput=throughput, blocktime=blocktime)
 
 app.run(host='83.212.97.85', port=8080, debug=True)

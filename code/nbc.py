@@ -75,6 +75,8 @@ def report_wallet_balance():
 
 @app.route(cfg.THROUGHPUT, methods=['GET'])
 def get_throughput():
+    if cfg.start_time is None:
+        return jsonify(0), 200
     elapsed_time = cfg.end_time - cfg.start_time
     n_transactions = (len(node.blockchain) - 1) * cfg.CAPACITY
     return jsonify(n_transactions / elapsed_time), 200
