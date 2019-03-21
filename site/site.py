@@ -27,7 +27,7 @@ def site_init():
 
     try:
         r = requests.get('http://' + cfg.BOOTSTRAP_ADDRESS + cfg.RING)
-    except requests.exceptions.RequestException as e:
+    except:
         n_nodes = 0
         ring, addresses, wallets = None, None, None
         return False
