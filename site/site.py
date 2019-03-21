@@ -124,7 +124,7 @@ def network_init():
                 ]), stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
                 o, e = p.communicate()
                 while not o and not e:
-                    pass
+                    o, e = p.communicate()
             excess -= 1
 
         return redirect(url_for('index'))
