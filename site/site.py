@@ -83,11 +83,8 @@ def make_transaction(node):
 @app.route('/<int:node>/bc', methods=['GET'])
 def view_blockchain(node):
 
-    # get ring from bootstrap
-    node_inet_address = addresses[0]
-    
     # get target blockchain
-    bc = requests.get('http://' + node_inet_address + cfg.BLOCKCHAIN).json()
+    bc = requests.get('http://' + addresses[node] + cfg.BLOCKCHAIN).json()
     col_names = ['index', 'timestamp', 'previous_hash', 'current_hash', 'nonce']
     bc_table = [[b[a] for a in col_names] for b in bc]
 
