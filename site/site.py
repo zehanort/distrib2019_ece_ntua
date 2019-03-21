@@ -159,4 +159,5 @@ def view_stats():
 
     return render_template('stats.html', nodes=n_nodes, throughput=throughput, blocktime=blocktime)
 
-app.run(host='83.212.97.85', port=8080, threaded=False, debug=True)
+if __name__ == '__main__':
+    app.run(host='83.212.97.85', port=8080, threaded=False, debug=True)
