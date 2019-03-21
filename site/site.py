@@ -121,7 +121,7 @@ def network_init():
                     '-i', cfg.key_dir,
                     '{}@{}'.format('user', address),
                     script.format(nbc_dir=cfg.nbc_dir, address=address, port=next(port))
-                ])
+                ], shell=True)
                 sleep(1)
             excess -= 1
 
